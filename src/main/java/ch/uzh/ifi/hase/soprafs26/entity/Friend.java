@@ -2,6 +2,8 @@ package ch.uzh.ifi.hase.soprafs26.entity;
 
 import jakarta.persistence.*;
 
+@Entity
+@Table(name = "friends")
 public class Friend {
 
     @Id
@@ -25,10 +27,6 @@ public class Friend {
     
     public Long getId() {
         return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
     }
 
     public Long getUserId() {

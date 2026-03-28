@@ -9,5 +9,6 @@ import ch.uzh.ifi.hase.soprafs26.entity.Friend;
 public interface FriendRepository extends JpaRepository<Friend, Long> {
 
     List<Friend> findByUserId(Long userId);
+    Friend findByUserIdAndFriendId(Long userId, Long friendId);
     
 }
