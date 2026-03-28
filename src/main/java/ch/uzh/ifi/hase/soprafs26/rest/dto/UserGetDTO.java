@@ -8,6 +8,7 @@ public class UserGetDTO {
 	private String name;
 	private String username;
 	private UserStatus status;
+	private java.time.LocalDate createdDate;
 
 	public Long getId() {
 		return id;
@@ -39,5 +40,13 @@ public class UserGetDTO {
 
 	public void setStatus(UserStatus status) {
 		this.status = status;
+	}
+
+	public java.time.LocalDate getCreatedDate() {
+		return createdDate;
+	}
+
+	public void setCreatedDate(java.time.LocalDate createdDate) {
+		this.createdDate = createdDate;
 	}
 }

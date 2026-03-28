@@ -38,6 +38,9 @@ public class User implements Serializable {
 	@Column(nullable = false)
 	private UserStatus status;
 
+	@Column(nullable = false)
+	private java.time.LocalDate createdDate;
+
 	public Long getId() {
 		return id;
 	}
@@ -76,5 +79,13 @@ public class User implements Serializable {
 
 	public void setStatus(UserStatus status) {
 		this.status = status;
+	}
+
+	public java.time.LocalDate getCreatedDate() {
+		return createdDate;
+	}
+
+	public void setCreatedDate(java.time.LocalDate createdDate) {
+		this.createdDate = createdDate;
 	}
 }
