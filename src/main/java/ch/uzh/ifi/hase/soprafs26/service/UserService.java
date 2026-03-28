@@ -4,6 +4,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.HttpStatusCode;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
@@ -36,6 +37,11 @@ public class UserService {
 
 	public List<User> getUsers() {
 		return this.userRepository.findAll();
+	}
+
+	public User getUserById(Long id){
+		return userRepository.findById(id)
+		.orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User with id ["+ id +"]could not be found"));
 	}
 
 	public User createUser(User newUser) {
