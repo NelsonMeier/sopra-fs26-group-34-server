@@ -1,11 +1,13 @@
 package ch.uzh.ifi.hase.soprafs26.rest.mapper;
 
-import org.mapstruct.*;
+import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
 import org.mapstruct.factory.Mappers;
 
 import ch.uzh.ifi.hase.soprafs26.entity.User;
 import ch.uzh.ifi.hase.soprafs26.rest.dto.UserGetDTO;
 import ch.uzh.ifi.hase.soprafs26.rest.dto.UserPostDTO;
+import ch.uzh.ifi.hase.soprafs26.rest.dto.UserPublicGetDTO;
 
 /**
  * DTOMapper
@@ -35,8 +37,16 @@ public interface DTOMapper {
 
 
 	@Mapping(source = "id", target = "id")
-	@Mapping(source = "name", target = "name")
 	@Mapping(source = "username", target = "username")
 	@Mapping(source = "status", target = "status")
+	@Mapping(source = "token", target = "token")
+	@Mapping(source = "creationDate", target = "creationDate")
 	UserGetDTO convertEntityToUserGetDTO(User user);
+	
+	@Mapping(source = "id", target = "id")
+	@Mapping(source = "username", target = "username")
+	@Mapping(source = "status", target = "status")
+	@Mapping(source = "creationDate", target = "creationDate")
+	UserPublicGetDTO convertEntityToUserPublicGetDTO(User user);
+
 }

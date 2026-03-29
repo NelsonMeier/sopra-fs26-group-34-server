@@ -118,4 +118,15 @@ public class UserService {
 		return true;
 	}
 
+	public User getUserById(Long id) {
+		User user = userRepository.findById(id).orElse(null); // find by id returns optional hendce orElse
+
+		if (user == null) {
+			throw new ResponseStatusException(HttpStatus.NOT_FOUND, "User with that id is not found");
+		}
+
+		return user;
+
+
+	}
 }

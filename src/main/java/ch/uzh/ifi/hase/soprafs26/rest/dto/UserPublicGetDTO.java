@@ -4,15 +4,15 @@ import java.time.LocalDate;
 
 import ch.uzh.ifi.hase.soprafs26.constant.UserStatus;
 
-public class UserGetDTO {
 
-	private Long id;
-	private String username;
-	private UserStatus status;
-	private String token;
-	private LocalDate creationDate;
+public class UserPublicGetDTO { // data sent back when viewing user profile
+    private Long id;
+    private String username;
+    private UserStatus status;
+    private LocalDate creationDate;
 
-	public Long getId() {
+
+    public Long getId() {
 		return id;
 	}
 
@@ -20,6 +20,7 @@ public class UserGetDTO {
 		this.id = id;
 	}
 
+	
 	public String getUsername() {
 		return username;
 	}
@@ -36,14 +37,6 @@ public class UserGetDTO {
 		this.status = status;
 	}
 
-	public String getToken() {
-		return token;
-	}
-
-	public void setToken(String token) {
-		this.token = token;
-	}
-
 	public LocalDate getCreationDate(){
 		return creationDate;
 	}
@@ -52,4 +45,6 @@ public class UserGetDTO {
 		this.creationDate = creationDate;
 	}
 
+
+    
 }
