@@ -74,4 +74,24 @@ public class UserService {
 					String.format(baseErrorMessage, "username", "is"));
 	}
 }
+
+	public User loginUser(User user) {
+		
+		User userByUsername = userRepository.findByUsername(user.getUsername()); //find user by username
+		if (userByUsername == null) { //if doesnt exist
+			throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Wrong Username");
+		}
+
+		if (!userByUsername.getPassword().equals(user.getPassword())){
+			throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Wrong password"); //wrong password
+		}
+
+		userByUsername.setStatus(UserStatus.ONLINE); //else set online
+      	userByUsername = userRepository.save(userByUsername); //save as we changes the status
+      	userRepository.flush();
+
+		return userByUsername;
+
+}
+
 }
