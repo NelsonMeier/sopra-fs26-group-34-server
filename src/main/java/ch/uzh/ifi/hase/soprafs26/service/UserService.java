@@ -94,4 +94,28 @@ public class UserService {
 
 }
 
+	public boolean checkAuthentication(String token) { //check if token belongs to a logged in user
+
+		User user = userRepository.findByToken(token); //look up user by token
+
+		if (user == null) {
+			throw new ResponseStatusException(HttpStatus.FORBIDDEN, "No valid user is logged in with this provided token");
+		} //if not found
+
+		return true;
+
+	}
+
+
+	public boolean checkUserAuthentication(Long id, String token) { //check if belong
+
+		User user = userRepository.findByToken(token); //look up user
+
+		if (user == null || !user.getId().equals(id)) { //checks if exists and if matches to the user
+			return false;
+		}
+
+		return true;
+	}
+
 }
