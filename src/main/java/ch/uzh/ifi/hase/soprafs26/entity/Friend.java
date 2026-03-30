@@ -10,8 +10,6 @@ public class Friend {
     @GeneratedValue
     private Long id;
 
-    @Column(nullable = false)
-    private Long userId;
 
     // user who has the friend
     @ManyToOne
@@ -27,14 +25,6 @@ public class Friend {
     
     public Long getId() {
         return id;
-    }
-
-    public Long getUserId() {
-        return userId;
-    }
-
-    public void setUserId(Long userId) {
-        this.userId = userId;
     }
 
     public User getUser() {

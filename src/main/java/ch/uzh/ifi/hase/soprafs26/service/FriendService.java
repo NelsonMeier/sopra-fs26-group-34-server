@@ -92,13 +92,11 @@ public class FriendService {
         User receiver = friendRequest.getReceiver();
         
         Friend friendship1 = new Friend();
-        friendship1.setUserId(sender.getId());
         friendship1.setUser(sender);
         friendship1.setFriend(receiver);
         friendRepository.save(friendship1);
 
         Friend friendship2 = new Friend();
-        friendship2.setUserId(receiver.getId());
         friendship2.setUser(receiver);
         friendship2.setFriend(sender);
         friendRepository.save(friendship2);
