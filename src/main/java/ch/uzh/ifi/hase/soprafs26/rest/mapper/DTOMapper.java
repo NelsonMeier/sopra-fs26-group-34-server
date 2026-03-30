@@ -11,6 +11,7 @@ import ch.uzh.ifi.hase.soprafs26.rest.dto.FriendDTO;
 import ch.uzh.ifi.hase.soprafs26.rest.dto.FriendRequestDTO;
 import ch.uzh.ifi.hase.soprafs26.rest.dto.UserGetDTO;
 import ch.uzh.ifi.hase.soprafs26.rest.dto.UserPostDTO;
+import ch.uzh.ifi.hase.soprafs26.rest.dto.UserPublicGetDTO;
 /**
  * DTOMapper
  * This class is responsible for generating classes that will automatically
@@ -44,6 +45,12 @@ public interface DTOMapper {
 	@Mapping(source = "token", target = "token")
 	@Mapping(source = "creationDate", target = "creationDate")
 	UserGetDTO convertEntityToUserGetDTO(User user);
+
+	@Mapping(source = "id", target = "id")
+	@Mapping(source = "username", target = "username")
+	@Mapping(source = "status", target = "status")
+	@Mapping(source = "creationDate", target = "creationDate")
+	UserPublicGetDTO convertEntityToUserPublicGetDTO(User user);
 
 	//convert Friend to FriendDTO
 	@Mapping(source = "friend.id", target = "id")
