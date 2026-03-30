@@ -1,5 +1,6 @@
 package ch.uzh.ifi.hase.soprafs26.controller;
 
+import org.springframework.boot.webmvc.autoconfigure.WebMvcProperties.Apiversion.Use;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
@@ -11,6 +12,9 @@ import ch.uzh.ifi.hase.soprafs26.service.UserService;
 
 import java.util.ArrayList;
 import java.util.List;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+
 
 /**
  * User Controller
@@ -42,6 +46,15 @@ public class UserController {
 		}
 		return userGetDTOs;
 	}
+
+	@GetMapping("users/{id}")
+	@ResponseStatus(HttpStatus.OK)
+	@ResponseBody
+	public UserGetDTO getUserById(@PathVariable Long id) {
+		User user = userService.getUserById(id);
+		return DTOMapper.INSTANCE.convertEntityToUserGetDTO(user);
+	}
+	
 
 	@PostMapping("/users")
 	@ResponseStatus(HttpStatus.CREATED)
