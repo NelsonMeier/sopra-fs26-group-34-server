@@ -4,11 +4,13 @@ import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.factory.Mappers;
 
+import ch.uzh.ifi.hase.soprafs26.entity.Friend;
+import ch.uzh.ifi.hase.soprafs26.entity.FriendRequest;
 import ch.uzh.ifi.hase.soprafs26.entity.User;
+import ch.uzh.ifi.hase.soprafs26.rest.dto.FriendDTO;
+import ch.uzh.ifi.hase.soprafs26.rest.dto.FriendRequestDTO;
 import ch.uzh.ifi.hase.soprafs26.rest.dto.UserGetDTO;
 import ch.uzh.ifi.hase.soprafs26.rest.dto.UserPostDTO;
-import ch.uzh.ifi.hase.soprafs26.rest.dto.UserPublicGetDTO;
-
 /**
  * DTOMapper
  * This class is responsible for generating classes that will automatically
@@ -42,11 +44,18 @@ public interface DTOMapper {
 	@Mapping(source = "token", target = "token")
 	@Mapping(source = "creationDate", target = "creationDate")
 	UserGetDTO convertEntityToUserGetDTO(User user);
-	
-	@Mapping(source = "id", target = "id")
-	@Mapping(source = "username", target = "username")
-	@Mapping(source = "status", target = "status")
-	@Mapping(source = "creationDate", target = "creationDate")
-	UserPublicGetDTO convertEntityToUserPublicGetDTO(User user);
 
+	//convert Friend to FriendDTO
+	@Mapping(source = "friend.id", target = "id")
+	@Mapping(source = "friend.username", target = "username")
+	FriendDTO convertEntityToFriendDTO(Friend friend);
+	
+
+	//convert FriendRequest to FriendRequestDTO
+	@Mapping(source = "id", target = "id")
+	@Mapping(source = "sender", target = "sender")
+	@Mapping(source = "receiver", target = "receiver")
+	@Mapping(source = "status", target = "status")
+	@Mapping(source = "createdAt", target = "createdAt")
+	FriendRequestDTO convertEntityToFriendRequestDTO(FriendRequest friendRequest);
 }
