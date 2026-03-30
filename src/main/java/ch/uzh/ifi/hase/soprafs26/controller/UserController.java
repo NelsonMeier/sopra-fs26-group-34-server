@@ -1,16 +1,28 @@
 package ch.uzh.ifi.hase.soprafs26.controller;
 
+import org.springframework.boot.webmvc.autoconfigure.WebMvcProperties.Apiversion.Use;
 import org.springframework.http.HttpStatus;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
+import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.ResponseStatus;
+import org.springframework.web.bind.annotation.RestController;
 
 import ch.uzh.ifi.hase.soprafs26.entity.User;
 import ch.uzh.ifi.hase.soprafs26.rest.dto.UserGetDTO;
 import ch.uzh.ifi.hase.soprafs26.rest.dto.UserPostDTO;
+import ch.uzh.ifi.hase.soprafs26.rest.dto.UserPublicGetDTO;
 import ch.uzh.ifi.hase.soprafs26.rest.mapper.DTOMapper;
 import ch.uzh.ifi.hase.soprafs26.service.UserService;
 
 import java.util.ArrayList;
 import java.util.List;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+
 
 /**
  * User Controller
@@ -31,28 +43,65 @@ public class UserController {
 	@GetMapping("/users")
 	@ResponseStatus(HttpStatus.OK)
 	@ResponseBody
-	public List<UserGetDTO> getAllUsers() {
+	public List<UserPublicGetDTO> getAllUsers(@RequestHeader("Authorization") String authHeader) {
+		String token = authHeader.replace("Bearer ", ""); //replaces ""
+    	userService.checkAuthentication(token); //checks token
 		// fetch all users in the internal representation
 		List<User> users = userService.getUsers();
-		List<UserGetDTO> userGetDTOs = new ArrayList<>();
+		List<UserPublicGetDTO> userGetDTOs = new ArrayList<>();
 
 		// convert each user to the API representation
 		for (User user : users) {
-			userGetDTOs.add(DTOMapper.INSTANCE.convertEntityToUserGetDTO(user));
+			userGetDTOs.add(DTOMapper.INSTANCE.convertEntityToUserPublicGetDTO(user));
 		}
 		return userGetDTOs;
 	}
 
+	@GetMapping("users/{id}")
+	@ResponseStatus(HttpStatus.OK)
+	@ResponseBody
+	public UserGetDTO getUserById(@PathVariable Long id) {
+		User user = userService.getUserById(id);
+		return DTOMapper.INSTANCE.convertEntityToUserGetDTO(user);
+	}
+	
+
 	@PostMapping("/users")
 	@ResponseStatus(HttpStatus.CREATED)
 	@ResponseBody
-	public UserGetDTO createUser(@RequestBody UserPostDTO userPostDTO) {
+	public UserGetDTO createUser(@RequestBody UserPostDTO userPostDTO) { //requestbody converts json from hhtp
 		// convert API user to internal representation
-		User userInput = DTOMapper.INSTANCE.convertUserPostDTOtoEntity(userPostDTO);
+		User userInput = DTOMapper.INSTANCE.convertUserPostDTOtoEntity(userPostDTO); //convert DTO to entity for database
 
 		// create user
-		User createdUser = userService.createUser(userInput);
+		User createdUser = userService.createUser(userInput); //send entity to service layer
 		// convert internal representation of user back to API
-		return DTOMapper.INSTANCE.convertEntityToUserGetDTO(createdUser);
+		return DTOMapper.INSTANCE.convertEntityToUserGetDTO(createdUser); //convert back as database entities do not get returned 
 	}
+
+	@PostMapping("/login")
+	@ResponseStatus(HttpStatus.OK)
+	@ResponseBody
+	public UserGetDTO loginUser(@RequestBody UserPostDTO userPostDTO) { //converts json from hhtps
+
+		User userInput = DTOMapper.INSTANCE.convertUserPostDTOtoEntity(userPostDTO); //convert DTO to entity for databse
+
+		User user = userService.loginUser(userInput); //send entity to service layer
+
+		return DTOMapper.INSTANCE.convertEntityToUserGetDTO(user); //convert back
+
+	}
+
+	@GetMapping("/users/{id}")
+	@ResponseStatus(HttpStatus.OK)
+	@ResponseBody
+	public UserPublicGetDTO getIdInformation(@PathVariable Long id,
+                                          @RequestHeader("Authorization") String authHeader) { //id and token
+    String token = authHeader.replace("Bearer ", ""); //replacing
+    userService.checkAuthentication(token);  //check token
+    
+    User user = userService.getUserById(id); //get id
+    return DTOMapper.INSTANCE.convertEntityToUserPublicGetDTO(user); //convert
+}
+
 }
