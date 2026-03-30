@@ -1,6 +1,8 @@
 package ch.uzh.ifi.hase.soprafs26.controller;
 
-import org.springframework.boot.webmvc.autoconfigure.WebMvcProperties.Apiversion.Use;
+import java.util.ArrayList;
+import java.util.List;
+
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -17,11 +19,6 @@ import ch.uzh.ifi.hase.soprafs26.rest.dto.UserPostDTO;
 import ch.uzh.ifi.hase.soprafs26.rest.dto.UserPublicGetDTO;
 import ch.uzh.ifi.hase.soprafs26.rest.mapper.DTOMapper;
 import ch.uzh.ifi.hase.soprafs26.service.UserService;
-
-import java.util.ArrayList;
-import java.util.List;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 
 
 /**
@@ -102,6 +99,14 @@ public class UserController {
     
     User user = userService.getUserById(id); //get id
     return DTOMapper.INSTANCE.convertEntityToUserPublicGetDTO(user); //convert
+}
+
+	@PostMapping("/logout/{id}")
+	@ResponseStatus(HttpStatus.NO_CONTENT)
+	public void logoutUser(@PathVariable Long id, //from url
+                       @RequestHeader("Authorization") String authHeader) { // request header
+    String token = authHeader.replace("Bearer ", ""); // remove ""
+    userService.logoutUser(id, token); //delegate to userservice
 }
 
 }

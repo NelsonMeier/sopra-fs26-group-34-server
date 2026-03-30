@@ -84,11 +84,11 @@ public class UserService {
 		
 		User userByUsername = userRepository.findByUsername(user.getUsername()); //find user by username
 		if (userByUsername == null) { //if doesnt exist
-			throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Wrong Username");
+			throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Wrong Username or Password");
 		}
 
 		if (!userByUsername.getPassword().equals(user.getPassword())){
-			throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Wrong password"); //wrong password
+			throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Wrong Username or Password");
 		}
 
 		userByUsername.setStatus(UserStatus.ONLINE); //else set online
@@ -122,5 +122,21 @@ public class UserService {
 
 		return true;
 	}
+
+	public void logoutUser(Long id, String token) {
+    User user = userRepository.findById(id).orElse(null); //get user by id
+
+    if (user == null) {
+        throw new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found"); //check that exists
+    }
+
+    if (!checkUserAuthentication(id, token)) {
+        throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Unauthorized"); //not right user 
+    }
+
+    user.setStatus(UserStatus.OFFLINE); //set status
+    userRepository.save(user); //save new 
+    userRepository.flush(); //make changes in database
+}
 
 }
