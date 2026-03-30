@@ -1,12 +1,17 @@
 package ch.uzh.ifi.hase.soprafs26.rest.mapper;
 
-import org.mapstruct.*;
+import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
 import org.mapstruct.factory.Mappers;
 
+import ch.uzh.ifi.hase.soprafs26.entity.Friend;
+import ch.uzh.ifi.hase.soprafs26.entity.FriendRequest;
 import ch.uzh.ifi.hase.soprafs26.entity.User;
+import ch.uzh.ifi.hase.soprafs26.rest.dto.FriendDTO;
+import ch.uzh.ifi.hase.soprafs26.rest.dto.FriendRequestDTO;
 import ch.uzh.ifi.hase.soprafs26.rest.dto.UserGetDTO;
 import ch.uzh.ifi.hase.soprafs26.rest.dto.UserPostDTO;
-
+import ch.uzh.ifi.hase.soprafs26.rest.dto.UserPublicGetDTO;
 /**
  * DTOMapper
  * This class is responsible for generating classes that will automatically
@@ -23,14 +28,41 @@ public interface DTOMapper {
 
 	DTOMapper INSTANCE = Mappers.getMapper(DTOMapper.class);
 
-	@Mapping(source = "name", target = "name")
-	@Mapping(source = "username", target = "username")
-	User convertUserPostDTOtoEntity(UserPostDTO userPostDTO);
+	@Mapping(source = "username", target = "username") 
+	@Mapping(source = "password", target = "password")
+	@Mapping(target = "id", ignore = true)
+	@Mapping(target = "token", ignore = true)
+	@Mapping(target = "status", ignore = true) 
+	@Mapping(target = "creationDate", ignore = true)
+
+	
+	User convertUserPostDTOtoEntity(UserPostDTO userPostDTO); 
+
 
 	@Mapping(source = "id", target = "id")
-	@Mapping(source = "name", target = "name")
 	@Mapping(source = "username", target = "username")
 	@Mapping(source = "status", target = "status")
 	@Mapping(source = "createdDate", target = "createdDate")
+	@Mapping(source = "token", target = "token")
 	UserGetDTO convertEntityToUserGetDTO(User user);
+
+	@Mapping(source = "id", target = "id")
+	@Mapping(source = "username", target = "username")
+	@Mapping(source = "status", target = "status")
+	@Mapping(source = "creationDate", target = "creationDate")
+	UserPublicGetDTO convertEntityToUserPublicGetDTO(User user);
+
+	//convert Friend to FriendDTO
+	@Mapping(source = "friend.id", target = "id")
+	@Mapping(source = "friend.username", target = "username")
+	FriendDTO convertEntityToFriendDTO(Friend friend);
+	
+
+	//convert FriendRequest to FriendRequestDTO
+	@Mapping(source = "id", target = "id")
+	@Mapping(source = "sender", target = "sender")
+	@Mapping(source = "receiver", target = "receiver")
+	@Mapping(source = "status", target = "status")
+	@Mapping(source = "createdAt", target = "createdAt")
+	FriendRequestDTO convertEntityToFriendRequestDTO(FriendRequest friendRequest);
 }
