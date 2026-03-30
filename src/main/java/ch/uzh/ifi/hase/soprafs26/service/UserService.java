@@ -91,6 +91,7 @@ public class UserService {
 			throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Wrong password"); //wrong password
 		}
 
+		userByUsername.setToken(UUID.randomUUID().toString());
 		userByUsername.setStatus(UserStatus.ONLINE); //else set online
       	userByUsername = userRepository.save(userByUsername); //save as we changes the status
       	userRepository.flush();
@@ -98,6 +99,15 @@ public class UserService {
 		return userByUsername;
 
 }
+
+	public void logoutUser(String token){
+		if (checkAuthentication(token)) {
+			User user = userRepository.findByToken(token);
+			user.setStatus(UserStatus.OFFLINE);
+			user.setToken(UUID.randomUUID().toString());
+			userRepository.flush();
+		}
+	}
 
 	public boolean checkAuthentication(String token) { //check if token belongs to a logged in user
 

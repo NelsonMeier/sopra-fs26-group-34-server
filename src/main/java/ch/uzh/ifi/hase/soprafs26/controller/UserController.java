@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.server.ResponseStatusException;
 
 import ch.uzh.ifi.hase.soprafs26.entity.User;
 import ch.uzh.ifi.hase.soprafs26.rest.dto.UserGetDTO;
@@ -55,16 +56,7 @@ public class UserController {
 			userGetDTOs.add(DTOMapper.INSTANCE.convertEntityToUserPublicGetDTO(user));
 		}
 		return userGetDTOs;
-	}
-
-	@GetMapping("users/{id}")
-	@ResponseStatus(HttpStatus.OK)
-	@ResponseBody
-	public UserGetDTO getUserById(@PathVariable Long id) {
-		User user = userService.getUserById(id);
-		return DTOMapper.INSTANCE.convertEntityToUserGetDTO(user);
-	}
-	
+	}	
 
 	@PostMapping("/users")
 	@ResponseStatus(HttpStatus.CREATED)
@@ -91,6 +83,18 @@ public class UserController {
 		return DTOMapper.INSTANCE.convertEntityToUserGetDTO(user); //convert back
 
 	}
+
+	@PostMapping("/logout")
+	@ResponseStatus(HttpStatus.OK)
+	@ResponseBody
+	public void logoutUser(@RequestHeader("Authorization") String authHeader) {
+		if(authHeader == null || !authHeader.startsWith("Bearer ")){
+			throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Invalid authorization header");
+		}
+		String token = authHeader.replace("Bearer ", "");
+		userService.logoutUser(token);
+	}
+	
 
 	@GetMapping("/users/{id}")
 	@ResponseStatus(HttpStatus.OK)
