@@ -93,4 +93,12 @@ public class UserController {
     return DTOMapper.INSTANCE.convertEntityToUserPublicGetDTO(user); //convert
 }
 
+	@PostMapping("/logout/{id}")
+	@ResponseStatus(HttpStatus.NO_CONTENT)
+	public void logoutUser(@PathVariable Long id, //from url
+                       @RequestHeader("Authorization") String authHeader) { // request header
+    String token = authHeader.replace("Bearer ", ""); // remove ""
+    userService.logoutUser(id, token); //delegate to userservice
+}
+
 }
