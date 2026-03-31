@@ -55,7 +55,6 @@ public class UserController {
 	}
 
 
-
 	@PostMapping("/users")
 	@ResponseStatus(HttpStatus.CREATED)
 	@ResponseBody

@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
@@ -45,17 +46,17 @@ public class FriendController {
     @PostMapping("/users/{userId}/friends/requests")
     @ResponseStatus(HttpStatus.CREATED)
     @ResponseBody
-    public FriendRequestDTO sendFriendRequest(@PathVariable Long senderId, @PathVariable Long receiverId) {
+    public FriendRequestDTO sendFriendRequest(@PathVariable Long userId, @RequestBody Long receiverId) {
         //error handling happens in service function
-        FriendRequest friendRequest = friendService.sendFriendRequest(senderId, receiverId);
+        FriendRequest friendRequest = friendService.sendFriendRequest(userId, receiverId);
         FriendRequestDTO friendRequestDTO = DTOMapper.INSTANCE.convertEntityToFriendRequestDTO(friendRequest);
         return friendRequestDTO;
     }
 
     @PutMapping("/users/{userId}/friends/requests/{requestId}")
-    @ResponseStatus(HttpStatus.NO_CONTENT)
+    @ResponseStatus(HttpStatus.OK)
     @ResponseBody
-    public FriendRequestDTO updateFriendRequest(@PathVariable Long requestId, FriendRequestStatus status) {
+    public FriendRequestDTO updateFriendRequest(@PathVariable Long requestId, @RequestBody FriendRequestStatus status) {
         FriendRequest friendRequest;
         if (status == FriendRequestStatus.ACCEPTED) {
             friendRequest = friendService.acceptFriendRequest(requestId);
