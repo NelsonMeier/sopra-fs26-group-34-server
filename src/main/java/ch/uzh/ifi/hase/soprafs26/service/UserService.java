@@ -44,6 +44,11 @@ public class UserService {
 		.orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User with id ["+ id +"]could not be found"));
 	}
 
+	public User getUserByUsername(String username){
+		return userRepository.findByUsername(username);
+	//	.orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User with username ["+ username +"]could not be found"));
+	}
+
 	public User createUser(User newUser) {
 		checkIfUserExists(newUser); //cheks if exist
 		newUser.setToken(UUID.randomUUID().toString());

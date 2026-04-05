@@ -19,6 +19,8 @@ import ch.uzh.ifi.hase.soprafs26.rest.dto.UserPostDTO;
 import ch.uzh.ifi.hase.soprafs26.rest.dto.UserPublicGetDTO;
 import ch.uzh.ifi.hase.soprafs26.rest.mapper.DTOMapper;
 import ch.uzh.ifi.hase.soprafs26.service.UserService;
+import org.springframework.web.bind.annotation.RequestParam;
+
 
 
 /**
@@ -100,5 +102,14 @@ public class UserController {
     String token = authHeader.replace("Bearer ", ""); // remove ""
     userService.logoutUser(id, token); //delegate to userservice
 }
+
+	@GetMapping("/users/search/{username}")
+	@ResponseStatus(HttpStatus.OK)
+	@ResponseBody
+	public UserPublicGetDTO searchUserByUsername(@PathVariable String username) {
+		User user = userService.getUserByUsername(username); //get user by username
+		return DTOMapper.INSTANCE.convertEntityToUserPublicGetDTO(user); //convert to public get dto
+	}
+	
 
 }
