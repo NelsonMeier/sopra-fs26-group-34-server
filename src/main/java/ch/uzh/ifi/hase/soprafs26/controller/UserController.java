@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.http.HttpStatus;
+import org.springframework.http.HttpStatusCode;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -12,6 +13,7 @@ import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.server.ResponseStatusException;
 
 import ch.uzh.ifi.hase.soprafs26.entity.User;
 import ch.uzh.ifi.hase.soprafs26.rest.dto.UserGetDTO;
@@ -20,6 +22,8 @@ import ch.uzh.ifi.hase.soprafs26.rest.dto.UserPublicGetDTO;
 import ch.uzh.ifi.hase.soprafs26.rest.mapper.DTOMapper;
 import ch.uzh.ifi.hase.soprafs26.service.UserService;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.PutMapping;
+
 
 
 
@@ -102,6 +106,19 @@ public class UserController {
     String token = authHeader.replace("Bearer ", ""); // remove ""
     userService.logoutUser(id, token); //delegate to userservice
 }
+
+	@PutMapping("/users/{id}")
+	@ResponseStatus(HttpStatus.NO_CONTENT)
+	public void changePassword(@PathVariable Long id, @RequestBody UserPostDTO userPostDTO, @RequestHeader("Authorization") String authHeader) {
+    String token = authHeader.replace("Bearer ", ""); //replacing
+    if (!userService.checkUserAuthentication(id, token)) {
+		throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Unauthorized: You can only change your own password");
+	}  //check token
+
+	User user = DTOMapper.INSTANCE.convertUserPostDTOtoEntity(userPostDTO);
+	userService.changePassword(id, user, token);
+	}
+	
 
 	@GetMapping("/users/search/{username}")
 	@ResponseStatus(HttpStatus.OK)

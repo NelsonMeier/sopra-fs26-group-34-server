@@ -144,4 +144,22 @@ public class UserService {
     userRepository.flush(); //make changes in database
 }
 
-}
+	public void changePassword(Long id, User user, String token) {
+		userRepository.findById(id)
+        .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, 
+		"User with id [" + id + "] not found"));
+
+		User requestingUser = userRepository.findByToken(token);
+		if (requestingUser == null) {
+			throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Invalid token.");
+		}
+		if(!requestingUser.getId().equals(id)){
+			throw new ResponseStatusException(HttpStatus.FORBIDDEN, "You can only change your own password");
+		}
+		if (user.getPassword() == null || user.getPassword().isBlank()) {
+			throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Your new password cannot be blank.");
+		}
+		requestingUser.setPassword(user.getPassword());
+		userRepository.save(requestingUser);
+		userRepository.flush();
+}}
