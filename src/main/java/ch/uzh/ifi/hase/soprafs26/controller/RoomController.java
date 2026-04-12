@@ -31,15 +31,16 @@ public class RoomController {
 
     @MessageMapping("/inviteRoom")
     public void inviteRoom(@Payload Map<String, String> payload) {
-        String roomId = payload.get("roomId");
-        String username = payload.get("username"); //gets info id and who to invite
-        Room room = rooms.get(roomId); 
-        if (room != null) {
-            room.invitePlayer(username); //adds to invited players
-            messagingTemplate.convertAndSend("/topic/room/" + roomId,
-                    (Object) Map.of("type", "PLAYER_INVITED", "username", username));
-        }
+    String roomId = payload.get("roomId");
+    String username = payload.get("username"); //gets info id and who to invite
+    String inviterName = payload.get("inviterName");
+    Room room = rooms.get(roomId);
+    if (room != null) {
+        room.invitePlayer(username); //adds to invited players
+        messagingTemplate.convertAndSend("/topic/invite/" + username,
+            (Object) Map.of("type", "PLAYER_INVITED", "roomId", roomId, "inviterName", inviterName));
     }
+}
     @MessageMapping("/joinRoom")
     public void joinRoom(@Payload Map<String, String> payload) {
         String roomId = payload.get("roomId");
