@@ -198,7 +198,96 @@ public class UserControllerTest {
     }
 
 
+    @Test
+	public void loginUser_validInput_returns200() throws Exception {
+		// given
+		User user = new User();
+		user.setId(1L);
+        user.setPassword("password");
+		user.setUsername("testUsername");
+		user.setToken("1");
+		user.setStatus(UserStatus.ONLINE);
 
+		UserPostDTO userPostDTO = new UserPostDTO();
+		userPostDTO.setUsername("testUsername");
+        userPostDTO.setPassword("password");
 
+		given(userService.loginUser(Mockito.any())).willReturn(user);
 
+		// when/then -> do the request + validate the result
+		MockHttpServletRequestBuilder postRequest = post("/login")
+				.contentType(MediaType.APPLICATION_JSON)
+				.content(asJsonString(userPostDTO));
+
+		// then
+		mockMvc.perform(postRequest)
+				.andExpect(status().isOk())
+				.andExpect(jsonPath("$.id", is(user.getId().intValue())))
+				.andExpect(jsonPath("$.username", is(user.getUsername())))
+				.andExpect(jsonPath("$.status", is(user.getStatus().toString())));
+	}
+
+    @Test
+	public void loginUser_invalidInput_returns401() throws Exception {
+    UserPostDTO userPostDTO = new UserPostDTO(); //create
+    userPostDTO.setUsername("testUsername"); //set username
+    userPostDTO.setPassword("wrongPassword"); //set wrong password
+
+    given(userService.loginUser(Mockito.any()))
+        .willThrow(new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Invalid username or password!"));
+
+    MockHttpServletRequestBuilder postRequest = post("/login")
+        .contentType(MediaType.APPLICATION_JSON)
+        .content(asJsonString(userPostDTO));
+
+    mockMvc.perform(postRequest)
+        .andExpect(status().isUnauthorized());
+    }
+
+    @Test
+    public void logoutUser_validRequest_returns204() throws Exception {
+        Mockito.doNothing().when(userService).logoutUser(1L, "testToken");
+
+        mockMvc.perform(post("/logout/1")
+                .header("Authorization", "Bearer testToken"))
+                .andExpect(status().isNoContent());
+
+        Mockito.verify(userService).logoutUser(1L, "testToken");
+    }
+
+    @Test
+    public void logoutUser_invalidUser_returns404() throws Exception {
+        Mockito.doThrow(new ResponseStatusException(HttpStatus.NOT_FOUND))
+                .when(userService).logoutUser(Mockito.any(), Mockito.any());
+
+        mockMvc.perform(post("/logout/99")
+                .header("Authorization", "Bearer testToken"))
+                .andExpect(status().isNotFound());
+    }
+
+    @Test
+    public void searchUser_validUsername_returns200() throws Exception {
+        User user = new User();
+        user.setId(1L);
+        user.setUsername("testUser");
+        user.setStatus(UserStatus.ONLINE);
+
+        given(userService.getUserByUsername("testUser")).willReturn(user);
+
+        mockMvc.perform(get("/users/search/testUser")
+                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id").value(1))
+                .andExpect(jsonPath("$.username").value("testUser"))
+                .andExpect(jsonPath("$.status").value("ONLINE"));
+    }
+
+    @Test
+    public void searchUser_notFound_returns404() throws Exception {
+        given(userService.getUserByUsername(Mockito.any()))
+                .willThrow(new ResponseStatusException(HttpStatus.NOT_FOUND));
+
+        mockMvc.perform(get("/users/search/unknownUser"))
+                .andExpect(status().isNotFound());
+    }
 }

@@ -78,4 +78,38 @@ public class UserServiceIntegrationTest {
 		// check that an error is thrown
 		assertThrows(ResponseStatusException.class, () -> userService.createUser(testUser2));
 	}
+
+	@Test
+	public void loginUser_valid_success() {
+		User user = new User();
+		user.setUsername("testUsername");
+		user.setPassword("testPassword");
+
+		userService.createUser(user);
+
+		User loginInput = new User();
+		loginInput.setUsername("testUsername");
+		loginInput.setPassword("testPassword");
+
+		User result = userService.loginUser(loginInput);
+
+		assertEquals(UserStatus.ONLINE, result.getStatus());
+	}
+
+	@Test
+	public void logoutUser_valid_success() {
+		User user = new User();
+		user.setUsername("testUsername");
+		user.setPassword("testPassword");
+
+		user.setPassword("testPassword2");
+
+		User created = userService.createUser(user);
+
+		userService.logoutUser(created.getId(), created.getToken());
+
+		User updated = userRepository.findById(created.getId()).get();
+		assertEquals(UserStatus.OFFLINE, updated.getStatus());
+	}
+
 }

@@ -41,6 +41,45 @@ public class UserServiceTest {
 	}
 
 	@Test
+	public void getUserById_validId_success() {
+		Mockito.when(userRepository.findById(1L))
+				.thenReturn(java.util.Optional.of(testUser));
+
+		User found = userService.getUserById(1L);
+
+		assertEquals(testUser.getId(), found.getId());
+	}
+
+	@Test
+	public void getUserById_invalidId_throwsException() {
+		Mockito.when(userRepository.findById(Mockito.any()))
+				.thenReturn(java.util.Optional.empty());
+
+		assertThrows(ResponseStatusException.class,
+				() -> userService.getUserById(99L));
+	}
+
+	@Test
+	public void getUserByUsername_found_success() {
+		Mockito.when(userRepository.findByUsername("testUsername"))
+				.thenReturn(testUser);
+
+		User found = userService.getUserByUsername("testUsername");
+
+		assertEquals(testUser.getUsername(), found.getUsername());
+	}
+
+	@Test
+	public void getUserByUsername_notFound_returnsNull() {
+		Mockito.when(userRepository.findByUsername(Mockito.any()))
+				.thenReturn(null);
+
+		User result = userService.getUserByUsername("unknown");
+
+		assertEquals(null, result);
+	}
+	
+	@Test
 	public void createUser_validInputs_success() {
 		// when -> any object is being save in the userRepository -> return the dummy
 		// testUser
@@ -80,6 +119,171 @@ public class UserServiceTest {
 		// then -> attempt to create second user with same user -> check that an error
 		// is thrown
 		assertThrows(ResponseStatusException.class, () -> userService.createUser(testUser));
+	}
+
+	@Test
+	public void loginUser_validCredentials_success() {
+		Mockito.when(userRepository.findByUsername("testUsername"))
+				.thenReturn(testUser);
+
+		User input = new User();
+		input.setUsername("testUsername");
+		input.setPassword("password");
+
+		User result = userService.loginUser(input);
+
+		assertEquals(UserStatus.ONLINE, result.getStatus());
+		Mockito.verify(userRepository).save(Mockito.any());
+		Mockito.verify(userRepository).flush();
+	}
+
+	@Test
+	public void loginUser_userNotFound_throwsException() {
+		Mockito.when(userRepository.findByUsername(Mockito.any()))
+				.thenReturn(null);
+
+		User input = new User();
+		input.setUsername("wrong");
+
+		assertThrows(ResponseStatusException.class,
+				() -> userService.loginUser(input));
+	}
+
+	@Test
+	public void loginUser_wrongPassword_throwsException() {
+		Mockito.when(userRepository.findByUsername("testUsername"))
+				.thenReturn(testUser);
+
+		User input = new User();
+		input.setUsername("testUsername");
+		input.setPassword("wrong");
+
+		assertThrows(ResponseStatusException.class,
+				() -> userService.loginUser(input));
+	}
+
+	@Test
+	public void checkAuthentication_validToken_returnsTrue() {
+		Mockito.when(userRepository.findByToken("token"))
+				.thenReturn(testUser);
+
+		boolean result = userService.checkAuthentication("token");
+
+		assertEquals(true, result);
+	}
+
+	@Test
+	public void checkAuthentication_invalidToken_throwsException() {
+		Mockito.when(userRepository.findByToken(Mockito.any()))
+				.thenReturn(null);
+
+		assertThrows(ResponseStatusException.class,
+				() -> userService.checkAuthentication("invalid"));
+	}
+
+	@Test
+	public void checkUserAuthentication_valid_returnsTrue() {
+		Mockito.when(userRepository.findByToken("token"))
+				.thenReturn(testUser);
+
+		boolean result = userService.checkUserAuthentication(1L, "token");
+
+		assertEquals(true, result);
+	}
+
+	@Test
+	public void checkUserAuthentication_invalid_returnsFalse() {
+		Mockito.when(userRepository.findByToken("token"))
+				.thenReturn(testUser);
+
+		boolean result = userService.checkUserAuthentication(2L, "token");
+
+		assertEquals(false, result);
+	}
+
+	@Test
+	public void logoutUser_valid_success() {
+		Mockito.when(userRepository.findById(1L))
+				.thenReturn(java.util.Optional.of(testUser));
+		Mockito.when(userRepository.findByToken("token"))
+				.thenReturn(testUser);
+
+		userService.logoutUser(1L, "token");
+
+		assertEquals(UserStatus.OFFLINE, testUser.getStatus());
+		Mockito.verify(userRepository).save(testUser);
+		Mockito.verify(userRepository).flush();
+	}
+
+	@Test
+	public void logoutUser_userNotFound_throwsException() {
+		Mockito.when(userRepository.findById(Mockito.any()))
+				.thenReturn(java.util.Optional.empty());
+
+		assertThrows(ResponseStatusException.class,
+				() -> userService.logoutUser(99L, "token"));
+	}
+
+	@Test
+	public void logoutUser_unauthorized_throwsException() {
+		Mockito.when(userRepository.findById(1L))
+				.thenReturn(java.util.Optional.of(testUser));
+		Mockito.when(userRepository.findByToken("token"))
+				.thenReturn(null);
+
+		assertThrows(ResponseStatusException.class,
+				() -> userService.logoutUser(1L, "token"));
+	}
+
+	@Test
+	public void changePassword_valid_success() {
+		Mockito.when(userRepository.findById(1L))
+				.thenReturn(java.util.Optional.of(testUser));
+		Mockito.when(userRepository.findByToken("token"))
+				.thenReturn(testUser);
+
+		User newUser = new User();
+		newUser.setPassword("newPassword");
+
+		userService.changePassword(1L, newUser, "token");
+
+		assertEquals("newPassword", testUser.getPassword());
+		Mockito.verify(userRepository).save(testUser);
+		Mockito.verify(userRepository).flush();
+	}
+
+	@Test
+	public void changePassword_userNotFound_throwsException() {
+		Mockito.when(userRepository.findById(Mockito.any()))
+				.thenReturn(java.util.Optional.empty());
+
+		assertThrows(ResponseStatusException.class,
+				() -> userService.changePassword(1L, new User(), "token"));
+	}
+
+	@Test
+	public void changePassword_invalidToken_throwsException() {
+		Mockito.when(userRepository.findById(1L))
+				.thenReturn(java.util.Optional.of(testUser));
+		Mockito.when(userRepository.findByToken(Mockito.any()))
+				.thenReturn(null);
+
+		assertThrows(ResponseStatusException.class,
+				() -> userService.changePassword(1L, new User(), "token"));
+	}
+
+	@Test
+	public void changePassword_blankPassword_throwsException() {
+		Mockito.when(userRepository.findById(1L))
+				.thenReturn(java.util.Optional.of(testUser));
+		Mockito.when(userRepository.findByToken("token"))
+				.thenReturn(testUser);
+
+		User newUser = new User();
+		newUser.setPassword("");
+
+		assertThrows(ResponseStatusException.class,
+				() -> userService.changePassword(1L, newUser, "token"));
 	}
 
 }
