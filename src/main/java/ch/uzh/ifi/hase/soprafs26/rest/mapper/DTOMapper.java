@@ -12,17 +12,7 @@ import ch.uzh.ifi.hase.soprafs26.rest.dto.FriendRequestDTO;
 import ch.uzh.ifi.hase.soprafs26.rest.dto.UserGetDTO;
 import ch.uzh.ifi.hase.soprafs26.rest.dto.UserPostDTO;
 import ch.uzh.ifi.hase.soprafs26.rest.dto.UserPublicGetDTO;
-/**
- * DTOMapper
- * This class is responsible for generating classes that will automatically
- * transform/map the internal representation
- * of an entity (e.g., the User) to the external/API representation (e.g.,
- * UserGetDTO for getting, UserPostDTO for creating)
- * and vice versa.
- * Additional mappers can be defined for new entities.
- * Always created one mapper for getting information (GET) and one mapper for
- * creating information (POST).
- */
+ import ch.uzh.ifi.hase.soprafs26.rest.dto.UserPutDTO;
 @Mapper
 public interface DTOMapper {
 
@@ -34,10 +24,7 @@ public interface DTOMapper {
 	@Mapping(target = "token", ignore = true)
 	@Mapping(target = "status", ignore = true) 
 	@Mapping(target = "creationDate", ignore = true)
-
-	
 	User convertUserPostDTOtoEntity(UserPostDTO userPostDTO); 
-
 
 	@Mapping(source = "id", target = "id")
 	@Mapping(source = "username", target = "username")
@@ -52,12 +39,19 @@ public interface DTOMapper {
 	@Mapping(source = "creationDate", target = "creationDate")
 	UserPublicGetDTO convertEntityToUserPublicGetDTO(User user);
 
+	@Mapping(source = "password", target = "password")
+	@Mapping(target = "username", ignore = true)
+	@Mapping(target = "token", ignore = true)
+	@Mapping(target = "id", ignore = true)
+	@Mapping(target = "status", ignore = true)
+	@Mapping(target = "creationDate", ignore = true)
+	User convertUserPutDTOtoEntity(UserPutDTO userPutDTO);
+
 	//convert Friend to FriendDTO
 	@Mapping(source = "friend.id", target = "id")
 	@Mapping(source = "friend.username", target = "username")
 	FriendDTO convertEntityToFriendDTO(Friend friend);
 	
-
 	//convert FriendRequest to FriendRequestDTO
 	@Mapping(source = "id", target = "id")
 	@Mapping(source = "sender", target = "sender")
