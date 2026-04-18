@@ -11,6 +11,8 @@ public class UserGetDTO {
 	private UserStatus status;
 	private String token;
 	private LocalDate creationDate;
+	private Integer reactionHighScore;
+	private Integer typingHighScore;
 
 	public Long getId() {
 		return id;
@@ -50,6 +52,22 @@ public class UserGetDTO {
 
 	public void setCreationDate(LocalDate creationDate) {
 		this.creationDate = creationDate;
+	}
+
+	public Integer getReactionHighScore() {
+		return reactionHighScore;
+	}
+
+	public void setReactionHighScore(Integer reactionHighScore) {
+		this.reactionHighScore = reactionHighScore;
+	}
+
+	public Integer getTypingHighScore() {
+		return typingHighScore;
+	}
+
+	public void setTypingHighScore(Integer typingHighScore) {
+		this.typingHighScore = typingHighScore;
 	}
 
 }

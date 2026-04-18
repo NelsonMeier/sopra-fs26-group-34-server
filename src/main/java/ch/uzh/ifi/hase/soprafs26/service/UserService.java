@@ -15,6 +15,7 @@ import org.springframework.web.server.ResponseStatusException;
 import ch.uzh.ifi.hase.soprafs26.constant.UserStatus;
 import ch.uzh.ifi.hase.soprafs26.entity.User;
 import ch.uzh.ifi.hase.soprafs26.repository.UserRepository;
+import ch.uzh.ifi.hase.soprafs26.rest.dto.HighScoresResponseDTO;
 
 /**
  * User Service
@@ -162,4 +163,49 @@ public class UserService {
 		requestingUser.setPassword(user.getPassword());
 		userRepository.save(requestingUser);
 		userRepository.flush();
-}}
+	}
+
+	public HighScoresResponseDTO updateHighScores(Long id, int[] reactionScores, int[] typingScores) {
+		User user = userRepository.findById(id)
+			.orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, 
+			"User with id [" + id + "] not found"));
+
+		boolean reactionHighScoreUpdated = false;
+		boolean typingHighScoreUpdated = false;
+
+		// Update reaction time high score (lower is better, so check minimum)
+		if (reactionScores != null && reactionScores.length > 0) {
+			int minReactionScore = Integer.MAX_VALUE;
+			for (int score : reactionScores) {
+				if (score != -1 && score < minReactionScore) { // -1 is failed
+					minReactionScore = score;
+				}
+			}
+			if (minReactionScore < Integer.MAX_VALUE) {
+				if (user.getReactionHighScore() == null || minReactionScore < user.getReactionHighScore()) {
+					user.setReactionHighScore(minReactionScore);
+					reactionHighScoreUpdated = true;
+				}
+			}
+		}
+
+		// Update typing speed high score (higher is better, so check maximum)
+		if (typingScores != null && typingScores.length > 0) {
+			int maxTypingScore = 0;
+			for (int score : typingScores) {
+				if (score > maxTypingScore) {
+					maxTypingScore = score;
+				}
+			}
+			if (user.getTypingHighScore() == null || maxTypingScore > user.getTypingHighScore()) {
+				user.setTypingHighScore(maxTypingScore);
+				typingHighScoreUpdated = true;
+			}
+		}
+
+		userRepository.save(user);
+		userRepository.flush();
+
+		return new HighScoresResponseDTO(reactionHighScoreUpdated, typingHighScoreUpdated);
+	}
+}

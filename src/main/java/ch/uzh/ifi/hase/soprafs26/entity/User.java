@@ -45,6 +45,12 @@ public class User implements Serializable { //allows to b able to b conerted to 
 	@Column(nullable = false)
 	private LocalDate creationDate;
 
+	@Column(nullable = true)
+	private Integer reactionHighScore;
+
+	@Column(nullable = true)
+	private Integer typingHighScore;
+
 	public Long getId() {                 //need these function as the fields are private so not anyone can just modify directly
 		return id;
 	}											
@@ -92,5 +98,21 @@ public class User implements Serializable { //allows to b able to b conerted to 
 
 	public void setStatus(UserStatus status) {
 		this.status = status;
+	}
+
+	public Integer getReactionHighScore() {
+		return reactionHighScore;
+	}
+
+	public void setReactionHighScore(Integer reactionHighScore) {
+		this.reactionHighScore = reactionHighScore;
+	}
+
+	public Integer getTypingHighScore() {
+		return typingHighScore;
+	}
+
+	public void setTypingHighScore(Integer typingHighScore) {
+		this.typingHighScore = typingHighScore;
 	}
 }

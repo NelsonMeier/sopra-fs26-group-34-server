@@ -19,6 +19,8 @@ import ch.uzh.ifi.hase.soprafs26.rest.dto.UserGetDTO;
 import ch.uzh.ifi.hase.soprafs26.rest.dto.UserPostDTO;
 import ch.uzh.ifi.hase.soprafs26.rest.dto.UserPublicGetDTO;
 import ch.uzh.ifi.hase.soprafs26.rest.dto.UserPutDTO;
+import ch.uzh.ifi.hase.soprafs26.rest.dto.HighScoresDTO;
+import ch.uzh.ifi.hase.soprafs26.rest.dto.HighScoresResponseDTO;
 import ch.uzh.ifi.hase.soprafs26.rest.mapper.DTOMapper;
 import ch.uzh.ifi.hase.soprafs26.service.UserService;
 
@@ -124,5 +126,13 @@ public class UserController {
 		return DTOMapper.INSTANCE.convertEntityToUserPublicGetDTO(user); //convert to public get dto
 	}
 	
+	@PutMapping("/users/{id}/highscores")
+	@ResponseStatus(HttpStatus.OK)
+	@ResponseBody
+	public HighScoresResponseDTO updateHighScores(@PathVariable Long id, @RequestBody HighScoresDTO highScoresDTO, @RequestHeader("Authorization") String authHeader) {
+		String token = authHeader.replace("Bearer ", "");
+		userService.checkAuthentication(token);
+		return userService.updateHighScores(id, highScoresDTO.getReactionScores(), highScoresDTO.getTypingScores());
+	}
 
 }

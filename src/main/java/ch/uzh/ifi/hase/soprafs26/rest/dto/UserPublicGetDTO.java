@@ -10,6 +10,8 @@ public class UserPublicGetDTO { // data sent back when viewing user profile
     private String username;
     private UserStatus status;
     private LocalDate creationDate;
+    private Integer reactionHighScore;
+    private Integer typingHighScore;
 
 
     public Long getId() {
@@ -45,6 +47,20 @@ public class UserPublicGetDTO { // data sent back when viewing user profile
 		this.creationDate = creationDate;
 	}
 
+	public Integer getReactionHighScore() {
+		return reactionHighScore;
+	}
 
-    
+	public void setReactionHighScore(Integer reactionHighScore) {
+		this.reactionHighScore = reactionHighScore;
+	}
+
+	public Integer getTypingHighScore() {
+		return typingHighScore;
+	}
+
+	public void setTypingHighScore(Integer typingHighScore) {
+		this.typingHighScore = typingHighScore;
+	}
+
 }
