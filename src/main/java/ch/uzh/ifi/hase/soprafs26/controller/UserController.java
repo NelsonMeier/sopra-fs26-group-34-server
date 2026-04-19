@@ -139,6 +139,7 @@ public class UserController {
 	@GetMapping("/scoreboard")
 	@ResponseStatus(HttpStatus.OK)
 	public ScoreboardResponseDTO getScoreboard() {
-		
+		ScoreboardResponseDTO scoreboards = userService.populateScoreboard();
+		return scoreboards;
 	}
 }

@@ -9,6 +9,7 @@ import ch.uzh.ifi.hase.soprafs26.entity.FriendRequest;
 import ch.uzh.ifi.hase.soprafs26.entity.User;
 import ch.uzh.ifi.hase.soprafs26.rest.dto.FriendDTO;
 import ch.uzh.ifi.hase.soprafs26.rest.dto.FriendRequestDTO;
+import ch.uzh.ifi.hase.soprafs26.rest.dto.ScoreboardEntryDTO;
 import ch.uzh.ifi.hase.soprafs26.rest.dto.UserGetDTO;
 import ch.uzh.ifi.hase.soprafs26.rest.dto.UserPostDTO;
 import ch.uzh.ifi.hase.soprafs26.rest.dto.UserPublicGetDTO;
@@ -63,4 +64,14 @@ public interface DTOMapper {
 	@Mapping(source = "status", target = "status")
 	@Mapping(source = "createdAt", target = "createdAt")
 	FriendRequestDTO convertEntityToFriendRequestDTO(FriendRequest friendRequest);
-}
+
+	//convert User to ScoreboardEntry for Reaction Time Leaderboard Records
+	@Mapping(source = "username", target = "username")
+	@Mapping(source = "reactionHighScore", target = "score")
+	ScoreboardEntryDTO convertEntityToReactionScoreboardEntryDTO(User user);
+
+	//convert User to ScoreboardEntry for Typing Speed Leaderboard Records
+	@Mapping(source = "username", target = "username")
+	@Mapping(source = "typingHighScore", target = "score")
+	ScoreboardEntryDTO convertEntityToTypingScoreboardEntryDTO(User user);
+	}

@@ -4,6 +4,10 @@ public class ScoreboardEntryDTO {
     private String username;
     private Integer score;
 
+    // Addition for Spring
+    public ScoreboardEntryDTO() {
+    }
+
     public void setUsername(String username) {
         this.username = username;
     }
