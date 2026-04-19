@@ -16,6 +16,7 @@ import ch.uzh.ifi.hase.soprafs26.constant.UserStatus;
 import ch.uzh.ifi.hase.soprafs26.entity.User;
 import ch.uzh.ifi.hase.soprafs26.repository.UserRepository;
 import ch.uzh.ifi.hase.soprafs26.rest.dto.HighScoresResponseDTO;
+import ch.uzh.ifi.hase.soprafs26.rest.dto.ScoreboardResponseDTO;
 
 /**
  * User Service
@@ -207,5 +208,9 @@ public class UserService {
 		userRepository.flush();
 
 		return new HighScoresResponseDTO(reactionHighScoreUpdated, typingHighScoreUpdated);
+	}
+
+	public ScoreboardResponseDTO populateScoreboard(){
+		
 	}
 }
