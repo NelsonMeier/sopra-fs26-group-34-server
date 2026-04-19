@@ -69,15 +69,85 @@ public class RoomController {
 
     @MessageMapping("/startGame")
     public void startGame(@Payload Map<String, String> payload) {
-        String roomId = payload.get("roomId");
-        Room room = rooms.get(roomId);
-        if (room != null) {
-            room.setGameStarted(true);
-            messagingTemplate.convertAndSend("/topic/room/" + roomId,
-                    (Object) Map.of("type", "GAME_STARTED", "game", room.getSelectedGame()));   
+    String roomId = payload.get("roomId");
+    Room room = rooms.get(roomId);
+    if (room != null) {
+        room.setGameStarted(true);
+        messagingTemplate.convertAndSend("/topic/room/" + roomId,
+                (Object) Map.of(
+                    "type", "GAME_STARTED",
+                    "game", room.getSelectedGame(),
+                    "rounds", String.valueOf(room.getRounds())
+                ));
+    }
 }
 
+    @MessageMapping("/broadcastQuote") //needed so everyone has the same quote for fairness reasosns
+    public void broadcastQuote(@Payload Map<String, String> payload) {
+        String roomId = payload.get("roomId"); //fetch quote + id+ round
+        String quote  = payload.get("quote");
+        String round  = payload.getOrDefault("round", "1");
+        messagingTemplate.convertAndSend("/topic/room/" + roomId, 
+            (Object) Map.of("type", "QUOTE_BROADCAST", "quote", quote, "round", round)); //broadcast to everyone in room
     }
+
+
+    @MessageMapping("/submitScore")
+    public void submitScore(@Payload Map<String, Object> payload) {
+        String roomId   = (String) payload.get("roomId"); //fetch values from message
+        String username = (String) payload.get("username");
+        String round    = payload.get("round").toString();
+        int    score    = Integer.parseInt(payload.get("score").toString());
+ 
+        Room room = rooms.get(roomId); //check if room exists
+        if (room == null) return;
+ 
+        messagingTemplate.convertAndSend("/topic/room/" + roomId,
+            (Object) Map.of("type", "SCORE_SUBMITTED", "username", username, "round", round)); //update which player is finished
+ 
+        boolean allDone = room.submitScore(round, username, score); //store score
+        if (allDone) { //if everyone is done, broadcast round complete with scores
+            messagingTemplate.convertAndSend("/topic/room/" + roomId,
+                (Object) Map.of(
+                    "type",   "ROUND_COMPLETE",
+                    "round",  round,
+                    "scores", room.getRoundScores(round)
+                ));
+        }
+    }
+ 
+    
+    @MessageMapping("/nextRound")
+    public void nextRound(@Payload Map<String, String> payload) {
+        String roomId = payload.get("roomId"); //extract info from message
+        String round  = payload.get("round");
+        Room room     = rooms.get(roomId);
+        if (room != null) { //broadcast next round
+            messagingTemplate.convertAndSend("/topic/room/" + roomId,
+                (Object) Map.of("type", "NEXT_ROUND", "round", round));
+        }
+    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 }
 
 

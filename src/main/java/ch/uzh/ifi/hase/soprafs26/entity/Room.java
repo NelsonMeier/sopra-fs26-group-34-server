@@ -1,6 +1,8 @@
 package ch.uzh.ifi.hase.soprafs26.entity;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class Room {
 
@@ -11,6 +13,8 @@ public class Room {
     private final Set<String> invitedPlayers = new HashSet<>(); //so no duplicates are allowed
     private final Set<String> joinedPlayers = new HashSet<>(); //so no duplicates are allowed
     private boolean gameStarted = false;
+
+    private final Map<String, Map<String, Integer>> roundScores = new ConcurrentHashMap<>();
 
     public Room(String roomId, Long adminId) {
         this.roomId = roomId;
@@ -67,6 +71,33 @@ public class Room {
         }
     }
 
+    public int expectedPlayerCount() {
+        return joinedPlayers.size() + 1;
+    }
+
+
+   public boolean submitScore(String round, String username, int score) {
+        //if no map 
+        if (roundScores.get(round) == null) {
+            roundScores.put(round, new ConcurrentHashMap<>());
+        }
+
+        //store score
+        roundScores.get(round).put(username, score);
+
+        //return if everyone has submitted their score
+        return roundScores.get(round).size() >= expectedPlayerCount();
+    }
+ 
+    public Map<String, Integer> getRoundScores(String round) {
+        //r eturn scores or empty map if none yet
+        if (roundScores.get(round) == null) {
+            return Map.of();
+        }
+        return roundScores.get(round);
+    }
+}
+
 
 
 
@@ -80,4 +111,4 @@ public class Room {
 
 
     
-}
+
