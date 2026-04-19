@@ -1,5 +1,6 @@
 package ch.uzh.ifi.hase.soprafs26.controller;
 
+import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -126,29 +127,23 @@ public class RoomController {
             messagingTemplate.convertAndSend("/topic/room/" + roomId,
                 (Object) Map.of("type", "NEXT_ROUND", "round", round));
         }
+        
     }
 
+   @MessageMapping("/startRound")
+    public void startRound(@Payload Map<String, String> payload) {
+        String roomId = payload.get("roomId");
 
+        long startAt = System.currentTimeMillis() + 3000;
 
+        Map<String, Object> message = new HashMap<>();
+        message.put("type", "ROUND_START");
+        message.put("startAt", startAt);
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+        messagingTemplate.convertAndSend(
+            "/topic/room/" + roomId,
+            (Object) message
+        );
+    }
 
 }
-
-
-
