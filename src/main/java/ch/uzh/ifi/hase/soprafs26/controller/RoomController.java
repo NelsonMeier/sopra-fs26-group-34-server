@@ -108,12 +108,20 @@ public class RoomController {
  
         boolean allDone = room.submitScore(round, username, score); //store score
         if (allDone) { //if everyone is done, broadcast round complete with scores
-            messagingTemplate.convertAndSend("/topic/room/" + roomId,
-                (Object) Map.of(
-                    "type",   "ROUND_COMPLETE",
-                    "round",  round,
-                    "scores", room.getRoundScores(round)
-                ));
+            Map<String, Object> roundCompleteMsg = new HashMap<>();
+            roundCompleteMsg.put("type",        "ROUND_COMPLETE");
+            roundCompleteMsg.put("round",        round);
+            roundCompleteMsg.put("scores",       room.getRoundScores(round));
+            roundCompleteMsg.put("totalScores",  room.getCumulativeRawScores()); // ← NEW
+            messagingTemplate.convertAndSend("/topic/room/" + roomId, (Object) roundCompleteMsg);
+ 
+            //GAME_OVER when the last round finishes
+            if (Integer.parseInt(round) >= room.getRounds()) {
+                Map<String, Object> gameOverMsg = new HashMap<>();
+                gameOverMsg.put("type",       "GAME_OVER");
+                gameOverMsg.put("finalScores", room.getCumulativeRawScores());
+                messagingTemplate.convertAndSend("/topic/room/" + roomId, (Object) gameOverMsg);
+            }
         }
     }
  
@@ -133,12 +141,14 @@ public class RoomController {
    @MessageMapping("/startRound")
     public void startRound(@Payload Map<String, String> payload) {
         String roomId = payload.get("roomId");
+        String round  = payload.getOrDefault("round", "1");
 
         long startAt = System.currentTimeMillis() + 3000;
 
         Map<String, Object> message = new HashMap<>();
         message.put("type", "ROUND_START");
         message.put("startAt", startAt);
+        message.put("round",   round);
 
         messagingTemplate.convertAndSend(
             "/topic/room/" + roomId,

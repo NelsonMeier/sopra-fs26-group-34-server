@@ -96,6 +96,20 @@ public class Room {
         }
         return roundScores.get(round);
     }
+
+
+
+    public Map<String, Integer> getCumulativeRawScores() { // for end of games
+        Map<String, Integer> totals = new ConcurrentHashMap<>();
+        for (Map<String, Integer> roundMap : roundScores.values()) {
+            for (Map.Entry<String, Integer> entry : roundMap.entrySet()) {
+                int s = Math.max(0, entry.getValue());
+                totals.merge(entry.getKey(), s, Integer::sum);
+            }
+        }
+        return totals; }
+
+
 }
 
 
