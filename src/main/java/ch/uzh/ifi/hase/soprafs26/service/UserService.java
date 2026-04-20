@@ -241,4 +241,9 @@ public class UserService {
 		));
 		return response;
 	}
+
+	// search users by username prefix 
+	public List<User> searchUsersByUsernamePrefix(String prefix) {
+		return userRepository.findByUsernameStartingWith(prefix);
+	}
 }
