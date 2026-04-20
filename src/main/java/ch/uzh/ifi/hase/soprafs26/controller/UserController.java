@@ -21,6 +21,7 @@ import ch.uzh.ifi.hase.soprafs26.rest.dto.UserPublicGetDTO;
 import ch.uzh.ifi.hase.soprafs26.rest.dto.UserPutDTO;
 import ch.uzh.ifi.hase.soprafs26.rest.dto.HighScoresDTO;
 import ch.uzh.ifi.hase.soprafs26.rest.dto.HighScoresResponseDTO;
+import ch.uzh.ifi.hase.soprafs26.rest.dto.ScoreboardResponseDTO;
 import ch.uzh.ifi.hase.soprafs26.rest.mapper.DTOMapper;
 import ch.uzh.ifi.hase.soprafs26.service.UserService;
 
@@ -135,4 +136,10 @@ public class UserController {
 		return userService.updateHighScores(id, highScoresDTO.getReactionScores(), highScoresDTO.getTypingScores());
 	}
 
+	@GetMapping("/scoreboard")
+	@ResponseStatus(HttpStatus.OK)
+	public ScoreboardResponseDTO getScoreboard() {
+		ScoreboardResponseDTO scoreboards = userService.populateScoreboard();
+		return scoreboards;
+	}
 }

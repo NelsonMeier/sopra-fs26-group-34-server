@@ -1,12 +1,15 @@
 package ch.uzh.ifi.hase.soprafs26.service;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -16,6 +19,9 @@ import ch.uzh.ifi.hase.soprafs26.constant.UserStatus;
 import ch.uzh.ifi.hase.soprafs26.entity.User;
 import ch.uzh.ifi.hase.soprafs26.repository.UserRepository;
 import ch.uzh.ifi.hase.soprafs26.rest.dto.HighScoresResponseDTO;
+import ch.uzh.ifi.hase.soprafs26.rest.dto.ScoreboardEntryDTO;
+import ch.uzh.ifi.hase.soprafs26.rest.dto.ScoreboardResponseDTO;
+import ch.uzh.ifi.hase.soprafs26.rest.mapper.DTOMapper;
 
 /**
  * User Service
@@ -207,5 +213,32 @@ public class UserService {
 		userRepository.flush();
 
 		return new HighScoresResponseDTO(reactionHighScoreUpdated, typingHighScoreUpdated);
+	}
+
+	public ScoreboardResponseDTO populateScoreboard(){
+		
+		List<User> topTenReactionRaw = userRepository.findTopReactionTimeScores(PageRequest.of(0, 10));
+		List<User> topTenTypingRaw = userRepository.findTopTypingSpeedScores(PageRequest.of(0, 10));
+	
+		List<ScoreboardEntryDTO> topTenReactionConverted = new ArrayList<>();
+
+		for (int index=0; index < topTenReactionRaw.size(); index++){
+			ScoreboardEntryDTO convertedEntry = DTOMapper.INSTANCE.convertEntityToReactionScoreboardEntryDTO(topTenReactionRaw.get(index));
+    		topTenReactionConverted.add(convertedEntry);
+		}
+
+		List<ScoreboardEntryDTO> topTenTypingConverted = new ArrayList<>();
+
+		for (int index = 0; index < topTenTypingRaw.size(); index++){
+    	ScoreboardEntryDTO convertedEntry = DTOMapper.INSTANCE.convertEntityToTypingScoreboardEntryDTO(topTenTypingRaw.get(index));
+    	topTenTypingConverted.add(convertedEntry);
+		}
+
+		ScoreboardResponseDTO response = new ScoreboardResponseDTO();
+		response.setScoreboards(Map.of(
+    	"reactionTime", topTenReactionConverted,
+    	"typingSpeed", topTenTypingConverted
+		));
+		return response;
 	}
 }
