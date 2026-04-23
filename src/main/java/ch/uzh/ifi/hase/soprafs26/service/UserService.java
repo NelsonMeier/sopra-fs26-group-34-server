@@ -225,7 +225,7 @@ public class UserService {
 	}
 
 	public Map<String, Integer> getLeaderboard(String gameId) {
-		return leaderboards.getOrDefault(gameId, new ConcurrentHashMap<>());
+		return leaderboards.getOrDefault(gameId, new ConcurrentHashMap<>()); }
     
     
 	public ScoreboardResponseDTO populateScoreboard(){
