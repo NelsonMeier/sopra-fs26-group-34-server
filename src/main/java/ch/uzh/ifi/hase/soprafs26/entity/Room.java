@@ -66,6 +66,7 @@ public class Room {
         return true;
     }
 
+    
     public List<Map<String, Object>> getGameQueue() {
         List<Map<String, Object>> list = new ArrayList<>();
         for (Map.Entry<String, Integer> e : gameQueue.entrySet()) {
