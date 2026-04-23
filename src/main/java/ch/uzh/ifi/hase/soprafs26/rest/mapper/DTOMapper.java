@@ -25,6 +25,8 @@ public interface DTOMapper {
 	@Mapping(target = "token", ignore = true)
 	@Mapping(target = "status", ignore = true) 
 	@Mapping(target = "creationDate", ignore = true)
+	@Mapping(target = "reactionHighScore", ignore = true)
+	@Mapping(target = "typingHighScore", ignore = true)
 	User convertUserPostDTOtoEntity(UserPostDTO userPostDTO); 
 
 	@Mapping(source = "id", target = "id")
@@ -50,6 +52,8 @@ public interface DTOMapper {
 	@Mapping(target = "id", ignore = true)
 	@Mapping(target = "status", ignore = true)
 	@Mapping(target = "creationDate", ignore = true)
+	@Mapping(target = "reactionHighScore", ignore = true)
+	@Mapping(target = "typingHighScore", ignore = true)
 	User convertUserPutDTOtoEntity(UserPutDTO userPutDTO);
 
 	//convert Friend to FriendDTO
