@@ -12,4 +12,7 @@ runtime_config:
   operating_system: "ubuntu22"
   runtime_version: "17"
 
+readiness_check:
+  app_start_timeout_sec: 300
+
 
