@@ -21,6 +21,7 @@ import ch.uzh.ifi.hase.soprafs26.rest.dto.UserPublicGetDTO;
 import ch.uzh.ifi.hase.soprafs26.rest.dto.UserPutDTO;
 import ch.uzh.ifi.hase.soprafs26.rest.dto.HighScoresDTO;
 import ch.uzh.ifi.hase.soprafs26.rest.dto.HighScoresResponseDTO;
+import ch.uzh.ifi.hase.soprafs26.rest.dto.ScoreboardResponseDTO;
 import ch.uzh.ifi.hase.soprafs26.rest.mapper.DTOMapper;
 import ch.uzh.ifi.hase.soprafs26.service.UserService;
 
@@ -121,9 +122,13 @@ public class UserController {
 	@GetMapping("/users/search/{username}")
 	@ResponseStatus(HttpStatus.OK)
 	@ResponseBody
-	public UserPublicGetDTO searchUserByUsername(@PathVariable String username) {
-		User user = userService.getUserByUsername(username); //get user by username
-		return DTOMapper.INSTANCE.convertEntityToUserPublicGetDTO(user); //convert to public get dto
+	public List<UserPublicGetDTO> searchUsersByUsername(@PathVariable String username) {
+		List<User> users = userService.searchUsersByUsernamePrefix(username); //get users by username prefix
+		List<UserPublicGetDTO> userGetDTOs = new ArrayList<>();
+		for (User user : users) {
+			userGetDTOs.add(DTOMapper.INSTANCE.convertEntityToUserPublicGetDTO(user)); //convert each to public get dto
+		}
+		return userGetDTOs;
 	}
 	
 	@PutMapping("/users/{id}/highscores")
@@ -135,4 +140,10 @@ public class UserController {
 		return userService.updateHighScores(id, highScoresDTO.getReactionScores(), highScoresDTO.getTypingScores());
 	}
 
+	@GetMapping("/scoreboard")
+	@ResponseStatus(HttpStatus.OK)
+	public ScoreboardResponseDTO getScoreboard() {
+		ScoreboardResponseDTO scoreboards = userService.populateScoreboard();
+		return scoreboards;
+	}
 }

@@ -272,22 +272,24 @@ public class UserControllerTest {
         user.setUsername("testUser");
         user.setStatus(UserStatus.ONLINE);
 
-        given(userService.getUserByUsername("testUser")).willReturn(user);
+        given(userService.searchUsersByUsernamePrefix("testUser")).willReturn(List.of(user));
 
         mockMvc.perform(get("/users/search/testUser")
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.id").value(1))
-                .andExpect(jsonPath("$.username").value("testUser"))
-                .andExpect(jsonPath("$.status").value("ONLINE"));
+            .andExpect(jsonPath("$", hasSize(1)))
+            .andExpect(jsonPath("$[0].id").value(1))
+            .andExpect(jsonPath("$[0].username").value("testUser"))
+            .andExpect(jsonPath("$[0].status").value("ONLINE"));
     }
 
     @Test
-    public void searchUser_notFound_returns404() throws Exception {
-        given(userService.getUserByUsername(Mockito.any()))
-                .willThrow(new ResponseStatusException(HttpStatus.NOT_FOUND));
+        public void searchUser_notFound_returns200WithEmptyList() throws Exception {
+        given(userService.searchUsersByUsernamePrefix(Mockito.any()))
+            .willReturn(Collections.emptyList());
 
         mockMvc.perform(get("/users/search/unknownUser"))
-                .andExpect(status().isNotFound());
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$", hasSize(0)));
     }
 }
