@@ -1,5 +1,7 @@
 package ch.uzh.ifi.hase.soprafs26.service;
 
+import java.util.List;
+
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
@@ -112,4 +114,49 @@ public class UserServiceIntegrationTest {
 		assertEquals(UserStatus.OFFLINE, updated.getStatus());
 	}
 
+	@Test
+	public void updateHighScores_persistsCorrectly() {
+		User user = new User();
+		user.setUsername("testUsername");
+		user.setPassword("testPassword");
+		user.setCreationDate(java.time.LocalDate.now());
+		user.setStatus(UserStatus.ONLINE);
+		user.setToken("testToken");
+
+		user = userRepository.saveAndFlush(user);
+
+		int[] reaction = {200, 180};
+		int[] typing = {40, 60};
+
+		userService.updateHighScores(user.getId(), reaction, typing);
+
+		User updated = userRepository.findById(user.getId()).get();
+
+		assertEquals(180, updated.getReactionHighScore());
+		assertEquals(60, updated.getTypingHighScore());
+	}
+
+	@Test
+	public void searchUsersByUsernamePrefix_success() {
+		User user = new User();
+		user.setUsername("testUsername");
+		user.setPassword("testPassword");
+		user.setCreationDate(java.time.LocalDate.now());
+		user.setStatus(UserStatus.ONLINE);
+		user.setToken("testToken");
+
+		userRepository.saveAndFlush(user);
+
+		List<User> result = userService.searchUsersByUsernamePrefix("test");
+
+		assertEquals(1, result.size());
+	}
+
+	@Test
+	public void populateScoreboard_returnsNotNull() {
+		var response = userService.populateScoreboard();
+
+		assertNotNull(response);
+		assertNotNull(response.getScoreboards());
+	}
 }

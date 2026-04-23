@@ -1,7 +1,9 @@
 package ch.uzh.ifi.hase.soprafs26.controller;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
@@ -24,6 +26,9 @@ import org.springframework.web.server.ResponseStatusException;
 
 import ch.uzh.ifi.hase.soprafs26.constant.UserStatus;
 import ch.uzh.ifi.hase.soprafs26.entity.User;
+import ch.uzh.ifi.hase.soprafs26.rest.dto.HighScoresDTO;
+import ch.uzh.ifi.hase.soprafs26.rest.dto.HighScoresResponseDTO;
+import ch.uzh.ifi.hase.soprafs26.rest.dto.ScoreboardResponseDTO;
 import ch.uzh.ifi.hase.soprafs26.rest.dto.UserPostDTO;
 import ch.uzh.ifi.hase.soprafs26.rest.dto.UserPutDTO;
 import ch.uzh.ifi.hase.soprafs26.service.UserService;
@@ -291,5 +296,40 @@ public class UserControllerTest {
         mockMvc.perform(get("/users/search/unknownUser"))
             .andExpect(status().isOk())
             .andExpect(jsonPath("$", hasSize(0)));
+    }
+
+    @Test
+    public void updateHighScores_validRequest_returns200() throws Exception {
+        HighScoresDTO dto = new HighScoresDTO();
+        dto.setReactionScores(new int[]{200, 180});
+        dto.setTypingScores(new int[]{50, 60});
+
+        given(userService.checkAuthentication("testToken")).willReturn(true);
+        given(userService.updateHighScores(Mockito.eq(1L), Mockito.any(), Mockito.any()))
+                .willReturn(new HighScoresResponseDTO(true, true));
+
+        mockMvc.perform(put("/users/1/highscores")
+                .contentType(MediaType.APPLICATION_JSON)
+                .header("Authorization", "Bearer testToken")
+                .content(asJsonString(dto)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.reactionHighScoreUpdated").value(true))
+                .andExpect(jsonPath("$.typingHighScoreUpdated").value(true));
+    }
+
+    @Test
+    public void getScoreboard_returns200() throws Exception {
+        ScoreboardResponseDTO response = new ScoreboardResponseDTO();
+        response.setScoreboards(Map.of(
+            "reactionTime", new ArrayList<>(),
+            "typingSpeed", new ArrayList<>()
+        ));
+
+        given(userService.populateScoreboard()).willReturn(response);
+
+        mockMvc.perform(get("/scoreboard"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.scoreboards.reactionTime").exists())
+                .andExpect(jsonPath("$.scoreboards.typingSpeed").exists());
     }
 }

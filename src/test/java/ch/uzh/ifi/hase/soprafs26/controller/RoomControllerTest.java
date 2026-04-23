@@ -3,8 +3,11 @@ package ch.uzh.ifi.hase.soprafs26.controller;
 import java.util.HashMap;
 import java.util.Map;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
 import static org.mockito.Mockito.verify;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
@@ -117,6 +120,18 @@ public class RoomControllerTest {
     }
 
     @Test
+    public void joinRoom_roomNotFound_noMessage() {
+        Map<String, String> payload = new HashMap<>();
+        payload.put("roomId", "unknown");
+        payload.put("username", "player1");
+
+        roomController.joinRoom(payload);
+
+        Mockito.verify(messagingTemplate, Mockito.never())
+            .convertAndSend(Mockito.anyString(), Mockito.<Object>any());
+    }
+
+    @Test
     public void selectGame_validRoom_sendsMessage() {
         Map<String, String> createPayload = new HashMap<>();
         createPayload.put("roomId", "room1");
@@ -187,6 +202,164 @@ public class RoomControllerTest {
                 .convertAndSend(Mockito.anyString(), Mockito.<Object>any());
 
         Mockito.reset(messagingTemplate);
+    }
+
+    @Test
+    public void broadcastQuote_validPayload_sendsMessage() {
+        Map<String, String> payload = new HashMap<>();
+        payload.put("roomId", "room1");
+        payload.put("quote", "Hello world");
+        payload.put("round", "2");
+
+        roomController.broadcastQuote(payload);
+
+        verify(messagingTemplate).convertAndSend(
+            Mockito.eq("/topic/room/room1"),
+            Mockito.<Object>any()
+        );
+    }
+
+    @Test
+    public void broadcastQuote_noRound_defaultsTo1() {
+        Map<String, String> payload = new HashMap<>();
+        payload.put("roomId", "room1");
+        payload.put("quote", "Hello world");
+
+        ArgumentCaptor<Object> captor = ArgumentCaptor.forClass(Object.class);
+
+        roomController.broadcastQuote(payload);
+
+        verify(messagingTemplate).convertAndSend(
+            Mockito.eq("/topic/room/room1"),
+            captor.capture()
+        );
+
+        @SuppressWarnings("unchecked")
+        Map<String, Object> msg = (Map<String, Object>) captor.getValue();
+
+        assertEquals("1", msg.get("round"));
+    }
+
+    @Test
+    public void submitScore_roomNotFound_noMessage() {
+        Map<String, Object> payload = new HashMap<>();
+        payload.put("roomId", "unknown");
+        payload.put("username", "player1");
+        payload.put("round", "1");
+        payload.put("score", 10);
+
+        roomController.submitScore(payload);
+
+        Mockito.verify(messagingTemplate, Mockito.never())
+            .convertAndSend(Mockito.anyString(), Mockito.<Object>any());
+    }
+
+    @Test
+    public void submitScore_validRoom_sendsScoreSubmitted() {
+        // create room
+        Map<String, String> createPayload = new HashMap<>();
+        createPayload.put("roomId", "room1");
+        createPayload.put("adminId", "1");
+        roomController.createRoom(createPayload);
+
+        Mockito.reset(messagingTemplate);
+
+        Map<String, Object> payload = new HashMap<>();
+        payload.put("roomId", "room1");
+        payload.put("username", "player1");
+        payload.put("round", "1");
+        payload.put("score", 10);
+
+        roomController.submitScore(payload);
+
+        verify(messagingTemplate, Mockito.atLeastOnce()).convertAndSend(
+            Mockito.eq("/topic/room/room1"),
+            Mockito.<Object>any()
+        );
+    }
+
+    @Test
+    public void nextRound_validRoom_sendsMessage() {
+        Map<String, String> createPayload = new HashMap<>();
+        createPayload.put("roomId", "room1");
+        createPayload.put("adminId", "1");
+        roomController.createRoom(createPayload);
+
+        Mockito.reset(messagingTemplate);
+
+        Map<String, String> payload = new HashMap<>();
+        payload.put("roomId", "room1");
+        payload.put("round", "2");
+
+        roomController.nextRound(payload);
+
+        verify(messagingTemplate).convertAndSend(
+            Mockito.eq("/topic/room/room1"),
+            Mockito.<Object>any()
+        );
+    }
+
+    @Test
+    public void nextRound_roomNotFound_noMessage() {
+        Map<String, String> payload = new HashMap<>();
+        payload.put("roomId", "unknown");
+        payload.put("round", "2");
+
+        roomController.nextRound(payload);
+
+        Mockito.verify(messagingTemplate, Mockito.never())
+            .convertAndSend(Mockito.anyString(), Mockito.<Object>any());
+    }
+
+    @Test
+    public void startRound_validPayload_sendsMessage() {
+        Map<String, String> payload = new HashMap<>();
+        payload.put("roomId", "room1");
+        payload.put("round", "2");
+
+        long beforeCall = System.currentTimeMillis();
+
+        roomController.startRound(payload);
+
+        long afterCall = System.currentTimeMillis();
+
+        ArgumentCaptor<Object> messageCaptor = ArgumentCaptor.forClass(Object.class);
+
+        verify(messagingTemplate).convertAndSend(
+            Mockito.eq("/topic/room/room1"),
+            messageCaptor.capture()
+        );
+
+        @SuppressWarnings("unchecked")
+        Map<String, Object> sentMessage = (Map<String, Object>) messageCaptor.getValue();
+
+        assertEquals("ROUND_START", sentMessage.get("type"));
+        assertEquals("2", sentMessage.get("round"));
+
+        long startAt = (long) sentMessage.get("startAt");
+
+        assertTrue(startAt >= beforeCall + 3000);
+        assertTrue(startAt <= afterCall + 3000);
+    }
+
+    @Test
+    public void startRound_noRoundProvided_defaultsTo1() {
+        Map<String, String> payload = new HashMap<>();
+        payload.put("roomId", "room1");
+
+        roomController.startRound(payload);
+
+        ArgumentCaptor<Object> messageCaptor = ArgumentCaptor.forClass(Object.class);
+
+        verify(messagingTemplate).convertAndSend(
+            Mockito.eq("/topic/room/room1"),
+            messageCaptor.capture()
+        );
+
+        @SuppressWarnings("unchecked")
+        Map<String, Object> sentMessage = (Map<String, Object>) messageCaptor.getValue();
+
+        assertEquals("1", sentMessage.get("round"));
     }
 
 }

@@ -1,5 +1,8 @@
 package ch.uzh.ifi.hase.soprafs26.service;
 
+import java.util.List;
+import java.util.Map;
+
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -284,6 +287,63 @@ public class UserServiceTest {
 
 		assertThrows(ResponseStatusException.class,
 				() -> userService.changePassword(1L, newUser, "token"));
+	}
+
+	@Test
+	public void updateHighScores_reactionAndTyping_success() {
+		testUser.setReactionHighScore(300);
+		testUser.setTypingHighScore(50);
+
+		Mockito.when(userRepository.findById(1L)).thenReturn(java.util.Optional.of(testUser));
+
+		int[] reaction = {250, 270, -1};
+		int[] typing = {60, 55};
+
+		var result = userService.updateHighScores(1L, reaction, typing);
+
+		assertEquals(true, result.isReactionHighScoreUpdated());
+		assertEquals(true, result.isTypingHighScoreUpdated());
+		assertEquals(250, testUser.getReactionHighScore());
+		assertEquals(60, testUser.getTypingHighScore());
+	}
+
+	@Test
+	public void updateHighScores_noImprovement_noUpdate() {
+		testUser.setReactionHighScore(200);
+		testUser.setTypingHighScore(100);
+
+		Mockito.when(userRepository.findById(1L)).thenReturn(java.util.Optional.of(testUser));
+
+		int[] reaction = {300, 400};
+		int[] typing = {50, 60};
+
+		var result = userService.updateHighScores(1L, reaction, typing);
+
+		assertEquals(false, result.isReactionHighScoreUpdated());
+		assertEquals(false, result.isTypingHighScoreUpdated());
+	}
+
+	@Test
+	public void leaderboard_setAndGet_success() {
+		Map<String, Integer> data = Map.of("user1", 100);
+
+		userService.setLeaderboard("game1", data);
+
+		Map<String, Integer> result = userService.getLeaderboard("game1");
+
+		assertEquals(100, result.get("user1"));
+	}
+
+	@Test
+	public void searchUsersByUsernamePrefix_success() {
+		List<User> users = List.of(testUser);
+
+		Mockito.when(userRepository.findByUsernameStartingWith("test"))
+			.thenReturn(users);
+
+		List<User> result = userService.searchUsersByUsernamePrefix("test");
+
+		assertEquals(1, result.size());
 	}
 
 }
