@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -37,6 +38,9 @@ public class UserService {
 	private final Logger log = LoggerFactory.getLogger(UserService.class); // creates logger for log messages 
 
 	private final UserRepository userRepository; //variable for userrep
+
+	private final Map<String, Map<String, Integer>> leaderboards = new ConcurrentHashMap<>();
+	
 
 	public UserService(@Qualifier("userRepository") UserRepository userRepository) {
 		this.userRepository = userRepository; //injects userrep so can b used 
@@ -215,6 +219,15 @@ public class UserService {
 		return new HighScoresResponseDTO(reactionHighScoreUpdated, typingHighScoreUpdated);
 	}
 
+	// for leaderboard
+	public void setLeaderboard(String gameId, Map<String, Integer> data) {
+		leaderboards.put(gameId, new ConcurrentHashMap<>(data));
+	}
+
+	public Map<String, Integer> getLeaderboard(String gameId) {
+		return leaderboards.getOrDefault(gameId, new ConcurrentHashMap<>()); }
+    
+    
 	public ScoreboardResponseDTO populateScoreboard(){
 		
 		List<User> topTenReactionRaw = userRepository.findTopReactionTimeScores(PageRequest.of(0, 10));
