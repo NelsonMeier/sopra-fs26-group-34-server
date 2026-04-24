@@ -54,6 +54,7 @@ public class FriendServiceTest {
                 .thenAnswer(invocation -> invocation.getArgument(0));
     }
 
+    // tests retrieval of a user's friends and correct mapping of friend relationships
     @Test
     public void getFriends_validUser_success() {
         Friend friend = new Friend();
@@ -70,6 +71,7 @@ public class FriendServiceTest {
         Mockito.verify(friendRepository).findByUserId(1L);
     }
 
+    // tests sending friend requests including success case and all validation rules
     @Test
     public void sendFriendRequest_validInput_success() {
         Mockito.when(userRepository.findById(1L))
@@ -152,6 +154,7 @@ public class FriendServiceTest {
                 () -> friendService.sendFriendRequest(1L, 2L));
     }
 
+    // tests accepting friend requests and creation of bidirectional friendships
     @Test
     public void acceptFriendRequest_validRequest_success() {
         Mockito.when(friendRequestRepository.findById(1L))
@@ -183,6 +186,7 @@ public class FriendServiceTest {
                 () -> friendService.acceptFriendRequest(99L));
     }
 
+    // tests declining friend requests and enforcing valid request state transitions
     @Test
     public void declineFriendRequest_validRequest_success() {
         Mockito.when(friendRequestRepository.findById(1L))
@@ -215,6 +219,7 @@ public class FriendServiceTest {
                 () -> friendService.declineFriendRequest(1L));
     }
 
+    // tests retrieval of pending friend requests for a user
     @Test
     public void getFriendRequests_validUser_success() {
         Mockito.when(friendRequestRepository.findByReceiverIdAndStatus(2L, FriendRequestStatus.PENDING))
@@ -228,6 +233,7 @@ public class FriendServiceTest {
         Mockito.verify(friendRequestRepository).findByReceiverIdAndStatus(2L, FriendRequestStatus.PENDING);
     }
 
+    // tests deletion of friendships including removal and error handling
     @Test
     public void deleteFriend_validFriendship_success() {
         Friend friendship1 = new Friend();
@@ -259,6 +265,7 @@ public class FriendServiceTest {
                 () -> friendService.deleteFriend(1L, 2L));
     }
 
+    // create fake User
     private User createUser(Long id, String username) {
         User user = new User();
         user.setId(id);

@@ -24,6 +24,7 @@ public class RoomControllerTest {
         roomController = new RoomController(messagingTemplate);
     }
 
+    // createRoom function from RoomController
     @Test
     public void createRoom_validPayload_sendsMessage() {
         Map<String, String> payload = new HashMap<>();
@@ -38,6 +39,7 @@ public class RoomControllerTest {
         );
     }
 
+    // inviteRoom function from RoomController
     @Test
     public void inviteRoom_validRoom_sendsInvite() {
         // first create room
@@ -72,6 +74,7 @@ public class RoomControllerTest {
                 .convertAndSend(Mockito.anyString(), Mockito.<Object>any());
     }
 
+    // joinRoom function from RoomController
     @Test
     public void joinRoom_invitedPlayer_sendsMessage() {
         // create room
@@ -131,6 +134,7 @@ public class RoomControllerTest {
             .convertAndSend(Mockito.anyString(), Mockito.<Object>any());
     }
 
+    // selectGame function from RoomController
     @Test
     public void selectGame_validRoom_sendsMessage() {
         Map<String, String> createPayload = new HashMap<>();
@@ -166,6 +170,7 @@ public class RoomControllerTest {
 
     }
 
+    // startGame function from RoomController
     @Test
     public void startGame_validRoom_sendsMessage() {
         Map<String, String> createPayload = new HashMap<>();
@@ -204,6 +209,7 @@ public class RoomControllerTest {
         Mockito.reset(messagingTemplate);
     }
 
+    // broadcastQuote function from RoomController
     @Test
     public void broadcastQuote_validPayload_sendsMessage() {
         Map<String, String> payload = new HashMap<>();
@@ -240,6 +246,7 @@ public class RoomControllerTest {
         assertEquals("1", msg.get("round"));
     }
 
+    // submitScore function from RoomController
     @Test
     public void submitScore_roomNotFound_noMessage() {
         Map<String, Object> payload = new HashMap<>();
@@ -278,6 +285,7 @@ public class RoomControllerTest {
         );
     }
 
+    // nextRound function from RoomController
     @Test
     public void nextRound_validRoom_sendsMessage() {
         Map<String, String> createPayload = new HashMap<>();
@@ -311,6 +319,7 @@ public class RoomControllerTest {
             .convertAndSend(Mockito.anyString(), Mockito.<Object>any());
     }
 
+    // startRound function from RoomController
     @Test
     public void startRound_validPayload_sendsMessage() {
         Map<String, String> payload = new HashMap<>();

@@ -26,6 +26,8 @@ import ch.uzh.ifi.hase.soprafs26.rest.dto.UserPutDTO;
  * works.
  */
 public class DTOMapperTest {
+	
+	// convert UserPostDTO to User
 	@Test
 	public void testCreateUser_fromUserPostDTO_toUser_success() {
 		// create UserPostDTO
@@ -41,6 +43,7 @@ public class DTOMapperTest {
 		assertEquals(userPostDTO.getUsername(), user.getUsername());
 	}
 
+	// convert User to UserGetDTO
 	@Test
 	public void testGetUser_fromUser_toUserGetDTO_success() {
 		// create User
@@ -59,6 +62,7 @@ public class DTOMapperTest {
 		assertEquals(user.getStatus(), userGetDTO.getStatus());
 	}
 
+	// if password not mapped
 	@Test
 	public void testGetUser_password_isNotMappedToDTO() {
 		User user = new User();
@@ -70,6 +74,7 @@ public class DTOMapperTest {
 		assertEquals("testUser", dto.getUsername());
 	}
 
+	// convert UserPostDTO to entity
 	@Test
 	public void convertUserPostDTO_toEntity_ignoresSystemFields() {
 		UserPostDTO dto = new UserPostDTO();
@@ -87,6 +92,7 @@ public class DTOMapperTest {
 		assertNull(user.getCreationDate());
 	}
 	
+	// convert UserPutDTO to entity (password change)
 	@Test
 	public void convertUserPutDTO_updatesOnlyPassword() {
 		UserPutDTO dto = new UserPutDTO();
@@ -102,6 +108,7 @@ public class DTOMapperTest {
 		assertNull(user.getStatus());
 	}
 
+	// convert Friend to FriendDTO
 	@Test
 	public void convertFriend_toFriendDTO_success() {
 		User friendUser = new User();
@@ -117,6 +124,7 @@ public class DTOMapperTest {
 		assertEquals("bUser", dto.getUsername());
 	}
 
+	// convert FriendRequest to DTO
 	@Test
 	public void convertFriendRequest_toDTO_success() {
 		User sender = new User();
@@ -143,6 +151,7 @@ public class DTOMapperTest {
 		assertNotNull(dto.getCreatedAt());
 	}
 
+	// convert User to ScoreboardEntityDTO (Reaction Time)
 	@Test
 	public void convertUser_toReactionScoreboardEntryDTO_success() {
 		User user = new User();
@@ -156,6 +165,7 @@ public class DTOMapperTest {
 		assertEquals(120, dto.getScore());
 	}
 
+	// concert User to ScoreboardEntityDTO (Typing Speed)
 	@Test
 	public void convertUser_toTypingScoreboardEntryDTO_success() {
 		User user = new User();

@@ -25,7 +25,7 @@ public class GameControllerTest {
     @MockitoBean
     private RestTemplate restTemplate;
 
-    // GET /api/games/quote -> success
+    // can successfully get a quote
     @Test
     public void getRandomQuote_success_returnsQuote() throws Exception {
         Map<String, Object> mockResponse = Map.of(
@@ -45,7 +45,7 @@ public class GameControllerTest {
                 .andExpect(jsonPath("$.author", is("Test Author")));
     }
 
-    // GET /api/games/quote -> external API failure
+    // external API failure while getting a quote
     @Test
     public void getRandomQuote_apiFails_returns500() throws Exception {
 

@@ -41,6 +41,7 @@ public class FriendControllerTest {
     @MockitoBean
     private FriendService friendService;
 
+    // getFriends function from FriendController
     @Test
     public void getFriends_validUser_returns200() throws Exception {
         User user = createUser(1L, "testUser");
@@ -72,6 +73,7 @@ public class FriendControllerTest {
                 .andExpect(jsonPath("$", hasSize(0)));
     }
 
+    // sendFriendRequest function from FriendController
     @Test
     public void sendFriendRequest_validInput_returns201() throws Exception {
         FriendRequest friendRequest = createFriendRequest(1L, FriendRequestStatus.PENDING);
@@ -112,6 +114,7 @@ public class FriendControllerTest {
                 .andExpect(status().isConflict());
     }
 
+    // updateFriendRequest function from FriendController
     @Test
     public void updateFriendRequest_accepted_returns200() throws Exception {
         FriendRequest friendRequest = createFriendRequest(1L, FriendRequestStatus.ACCEPTED);
@@ -159,6 +162,7 @@ public class FriendControllerTest {
                 .andExpect(status().isNotFound());
     }
 
+    // deleteFriend from FriendController
     @Test
     public void deleteFriend_validRequest_returns204() throws Exception {
         Mockito.doNothing().when(friendService).deleteFriend(1L, 2L);
@@ -178,6 +182,7 @@ public class FriendControllerTest {
                 .andExpect(status().isNotFound());
     }
 
+    // getFriendRequests function from FriendController
     @Test
     public void getFriendRequests_validUser_returns200() throws Exception {
         FriendRequest friendRequest = createFriendRequest(1L, FriendRequestStatus.PENDING);
@@ -204,6 +209,7 @@ public class FriendControllerTest {
                 .andExpect(jsonPath("$", hasSize(0)));
     }
 
+    // create fake friend and friend request
     private User createUser(Long id, String username) {
         User user = new User();
         user.setId(id);

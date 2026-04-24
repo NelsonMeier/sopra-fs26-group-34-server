@@ -43,6 +43,7 @@ public class UserServiceTest {
 		Mockito.when(userRepository.save(Mockito.any())).thenReturn(testUser);
 	}
 
+	// tests retrieving users by ID including success and not-found behavior
 	@Test
 	public void getUserById_validId_success() {
 		Mockito.when(userRepository.findById(1L))
@@ -62,6 +63,7 @@ public class UserServiceTest {
 				() -> userService.getUserById(99L));
 	}
 
+	// tests retrieving users by username including found and not-found cases
 	@Test
 	public void getUserByUsername_found_success() {
 		Mockito.when(userRepository.findByUsername("testUsername"))
@@ -82,6 +84,7 @@ public class UserServiceTest {
 		assertEquals(null, result);
 	}
 	
+	// tests user creation including persistence and duplicate username validation
 	@Test
 	public void createUser_validInputs_success() {
 		// when -> any object is being save in the userRepository -> return the dummy
@@ -124,6 +127,7 @@ public class UserServiceTest {
 		assertThrows(ResponseStatusException.class, () -> userService.createUser(testUser));
 	}
 
+	// tests login behavior including correct credentials and failure cases
 	@Test
 	public void loginUser_validCredentials_success() {
 		Mockito.when(userRepository.findByUsername("testUsername"))
@@ -165,6 +169,7 @@ public class UserServiceTest {
 				() -> userService.loginUser(input));
 	}
 
+	// tests token-based authentication validation
 	@Test
 	public void checkAuthentication_validToken_returnsTrue() {
 		Mockito.when(userRepository.findByToken("token"))
@@ -184,6 +189,7 @@ public class UserServiceTest {
 				() -> userService.checkAuthentication("invalid"));
 	}
 
+	// tests user-specific token authentication validation
 	@Test
 	public void checkUserAuthentication_valid_returnsTrue() {
 		Mockito.when(userRepository.findByToken("token"))
@@ -204,6 +210,7 @@ public class UserServiceTest {
 		assertEquals(false, result);
 	}
 
+	// tests logout behavior including status update and authorization checks
 	@Test
 	public void logoutUser_valid_success() {
 		Mockito.when(userRepository.findById(1L))
@@ -238,6 +245,7 @@ public class UserServiceTest {
 				() -> userService.logoutUser(1L, "token"));
 	}
 
+	// tests password change including validation of authentication and input constraints
 	@Test
 	public void changePassword_valid_success() {
 		Mockito.when(userRepository.findById(1L))
@@ -289,6 +297,7 @@ public class UserServiceTest {
 				() -> userService.changePassword(1L, newUser, "token"));
 	}
 
+	// tests updating high scores and detecting improvements correctly
 	@Test
 	public void updateHighScores_reactionAndTyping_success() {
 		testUser.setReactionHighScore(300);
@@ -323,6 +332,7 @@ public class UserServiceTest {
 		assertEquals(false, result.isTypingHighScoreUpdated());
 	}
 
+	// tests leaderboard storage and retrieval functionality
 	@Test
 	public void leaderboard_setAndGet_success() {
 		Map<String, Integer> data = Map.of("user1", 100);
@@ -334,6 +344,7 @@ public class UserServiceTest {
 		assertEquals(100, result.get("user1"));
 	}
 
+	// tests searching users by username prefix matching
 	@Test
 	public void searchUsersByUsernamePrefix_success() {
 		List<User> users = List.of(testUser);

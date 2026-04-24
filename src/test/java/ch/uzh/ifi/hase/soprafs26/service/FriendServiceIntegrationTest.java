@@ -45,7 +45,7 @@ public class FriendServiceIntegrationTest {
     private User sender;
     private User receiver;
 
-   
+    // create fake users
     @BeforeEach
     public void setup() {
         friendRepository.deleteAll();
@@ -60,7 +60,7 @@ public class FriendServiceIntegrationTest {
     }
 
     
-
+    // tests behavior of sending a friend request
     @Test
     public void sendFriendRequest_validInput_persistsToDatabase() {
         FriendRequest result = friendService.sendFriendRequest(sender.getId(), receiver.getId());
@@ -106,7 +106,7 @@ public class FriendServiceIntegrationTest {
     }
 
  
-
+    // tests accepting friend requests and creation friendships
     @Test
     public void acceptFriendRequest_createsSymmetricFriendships() {
         FriendRequest request = friendService.sendFriendRequest(sender.getId(), receiver.getId());
@@ -133,7 +133,7 @@ public class FriendServiceIntegrationTest {
     }
 
    
-
+    // tests declining friend requests and ensuring no friendships are created
     @Test
     public void declineFriendRequest_persistsDeclinedStatus_noFriendshipCreated() {
         FriendRequest request = friendService.sendFriendRequest(sender.getId(), receiver.getId());
@@ -169,7 +169,7 @@ public class FriendServiceIntegrationTest {
     }
 
    
-
+    // tests removal of friendships and error handling for non-existent relationships
     @Test
     public void deleteFriend_removesSymmetricFriendships() {
         FriendRequest request = friendService.sendFriendRequest(sender.getId(), receiver.getId());
@@ -191,7 +191,7 @@ public class FriendServiceIntegrationTest {
                 () -> friendService.deleteFriend(sender.getId(), receiver.getId()));
     }
 
-
+    // tests retrieval of a user's friends after relationship changes
     @Test
     public void getFriends_afterAccept_returnsFriend() {
         FriendRequest request = friendService.sendFriendRequest(sender.getId(), receiver.getId());
@@ -202,6 +202,7 @@ public class FriendServiceIntegrationTest {
         assertEquals(receiver.getId(), senderFriends.get(0).getFriend().getId());
     }
 
+    // tests retrieval of pending friend requests and filtering of declined ones
     @Test
     public void getFriendRequests_returnsPendingOnly_declinedExcluded() {
         FriendRequest request = friendService.sendFriendRequest(sender.getId(), receiver.getId());
@@ -227,7 +228,7 @@ public class FriendServiceIntegrationTest {
                 () -> friendService.sendFriendRequest(sender.getId(), receiver.getId()));
     }
 
-
+    // create fake User
     private User buildUser(String username, String token) {
         User user = new User();
         user.setUsername(username);

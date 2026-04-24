@@ -31,7 +31,7 @@ public class LeaderboardControllerTest {
 
     private final ObjectMapper objectMapper = new ObjectMapper();
 
-    //POST /api/leaderboard/{gameId}
+    // successful setLeaderboard with validInput
     @Test
     public void setLeaderboard_validInput_callsService() throws Exception {
         Map<String, Integer> data = Map.of(
@@ -47,7 +47,7 @@ public class LeaderboardControllerTest {
         verify(userService).setLeaderboard("game1", data);
     }
 
-    //GET /api/leaderboard/{gameId}
+    // return correct data from Leaderboard
     @Test
     public void getLeaderboard_validGameId_returnsData() throws Exception {
         Map<String, Integer> leaderboard = Map.of(
@@ -64,7 +64,7 @@ public class LeaderboardControllerTest {
                 .andExpect(jsonPath("$.user2", is(90)));
     }
 
-    //GET empty leaderboard
+    // no data to return on Leaderboard
     @Test
     public void getLeaderboard_noData_returnsEmptyMap() throws Exception {
         given(userService.getLeaderboard("unknownGame"))

@@ -39,6 +39,7 @@ public class UserServiceIntegrationTest {
 		userRepository.deleteAll();
 	}
 
+	// tests user creation including successful persistence and duplicate username validation
 	@Test
 	public void createUser_validInputs_success() {
 		// given
@@ -81,6 +82,7 @@ public class UserServiceIntegrationTest {
 		assertThrows(ResponseStatusException.class, () -> userService.createUser(testUser2));
 	}
 
+	// tests user login with correct credentials and status update behavior
 	@Test
 	public void loginUser_valid_success() {
 		User user = new User();
@@ -98,6 +100,7 @@ public class UserServiceIntegrationTest {
 		assertEquals(UserStatus.ONLINE, result.getStatus());
 	}
 
+	// tests user logout and verifies status change to OFFLINE
 	@Test
 	public void logoutUser_valid_success() {
 		User user = new User();
@@ -114,6 +117,7 @@ public class UserServiceIntegrationTest {
 		assertEquals(UserStatus.OFFLINE, updated.getStatus());
 	}
 
+	// tests updating and persisting user high scores correctly
 	@Test
 	public void updateHighScores_persistsCorrectly() {
 		User user = new User();
@@ -136,6 +140,7 @@ public class UserServiceIntegrationTest {
 		assertEquals(60, updated.getTypingHighScore());
 	}
 
+	// tests user search functionality using username prefix matching
 	@Test
 	public void searchUsersByUsernamePrefix_success() {
 		User user = new User();
@@ -152,6 +157,7 @@ public class UserServiceIntegrationTest {
 		assertEquals(1, result.size());
 	}
 
+	// tests scoreboard generation and ensures response structure is correctly returned
 	@Test
 	public void populateScoreboard_returnsNotNull() {
 		var response = userService.populateScoreboard();

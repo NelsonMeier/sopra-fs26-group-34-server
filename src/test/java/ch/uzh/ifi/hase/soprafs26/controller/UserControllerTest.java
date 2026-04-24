@@ -77,6 +77,7 @@ public class UserControllerTest {
 				.andExpect(jsonPath("$[0].status", is(user.getStatus().toString())));
 	}
 
+    // createUser from UserController
 	@Test
 	public void createUser_validInput_userCreated() throws Exception {
 		// given
@@ -172,7 +173,7 @@ public class UserControllerTest {
             .andExpect(status().isNotFound());
     }
 
-
+    // changePasword function from UserController
     @Test
     public void updateUser_validId_returns204() throws Exception {
     UserPutDTO userPutDTO = new UserPutDTO();
@@ -202,7 +203,7 @@ public class UserControllerTest {
             .andExpect(status().isNotFound()); //checks response
     }
 
-
+    // loginUser function from UserController
     @Test
 	public void loginUser_validInput_returns200() throws Exception {
 		// given
@@ -249,6 +250,7 @@ public class UserControllerTest {
         .andExpect(status().isUnauthorized());
     }
 
+    // logoutUser function from UserController
     @Test
     public void logoutUser_validRequest_returns204() throws Exception {
         Mockito.doNothing().when(userService).logoutUser(1L, "testToken");
@@ -270,6 +272,7 @@ public class UserControllerTest {
                 .andExpect(status().isNotFound());
     }
 
+    // searchUsersByUsername from UserController
     @Test
     public void searchUser_validUsername_returns200() throws Exception {
         User user = new User();
@@ -298,6 +301,7 @@ public class UserControllerTest {
             .andExpect(jsonPath("$", hasSize(0)));
     }
 
+    // updateHighScores from UserController
     @Test
     public void updateHighScores_validRequest_returns200() throws Exception {
         HighScoresDTO dto = new HighScoresDTO();
@@ -317,6 +321,7 @@ public class UserControllerTest {
                 .andExpect(jsonPath("$.typingHighScoreUpdated").value(true));
     }
 
+    // getScoreboard from UserController
     @Test
     public void getScoreboard_returns200() throws Exception {
         ScoreboardResponseDTO response = new ScoreboardResponseDTO();
