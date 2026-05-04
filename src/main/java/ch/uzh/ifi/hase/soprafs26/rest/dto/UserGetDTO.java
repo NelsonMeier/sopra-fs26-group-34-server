@@ -13,6 +13,7 @@ public class UserGetDTO {
 	private LocalDate creationDate;
 	private Integer reactionHighScore;
 	private Integer typingHighScore;
+	private Integer timeIntervalHighScore;
 
 	public Long getId() {
 		return id;
@@ -68,6 +69,14 @@ public class UserGetDTO {
 
 	public void setTypingHighScore(Integer typingHighScore) {
 		this.typingHighScore = typingHighScore;
+	}
+
+	public Integer getTimeIntervalHighScore() {
+		return timeIntervalHighScore;
+	}
+
+	public void setTimeIntervalHighScore(Integer timeIntervalHighScore) {
+		this.timeIntervalHighScore = timeIntervalHighScore;
 	}
 
 }

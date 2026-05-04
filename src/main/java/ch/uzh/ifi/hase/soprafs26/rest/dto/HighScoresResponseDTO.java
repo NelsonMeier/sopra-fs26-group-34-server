@@ -4,10 +4,13 @@ public class HighScoresResponseDTO {
 
 	private boolean reactionHighScoreUpdated;
 	private boolean typingHighScoreUpdated;
+	private boolean timeIntervalHighScoreUpdated;
 
-	public HighScoresResponseDTO(boolean reactionHighScoreUpdated, boolean typingHighScoreUpdated) {
+	public HighScoresResponseDTO(boolean reactionHighScoreUpdated, boolean typingHighScoreUpdated,
+			boolean timeIntervalHighScoreUpdated) {
 		this.reactionHighScoreUpdated = reactionHighScoreUpdated;
 		this.typingHighScoreUpdated = typingHighScoreUpdated;
+		this.timeIntervalHighScoreUpdated = timeIntervalHighScoreUpdated;
 	}
 
 	public boolean isReactionHighScoreUpdated() {
@@ -24,6 +27,14 @@ public class HighScoresResponseDTO {
 
 	public void setTypingHighScoreUpdated(boolean typingHighScoreUpdated) {
 		this.typingHighScoreUpdated = typingHighScoreUpdated;
+	}
+
+	public boolean isTimeIntervalHighScoreUpdated() {
+		return timeIntervalHighScoreUpdated;
+	}
+
+	public void setTimeIntervalHighScoreUpdated(boolean timeIntervalHighScoreUpdated) {
+		this.timeIntervalHighScoreUpdated = timeIntervalHighScoreUpdated;
 	}
 
 }

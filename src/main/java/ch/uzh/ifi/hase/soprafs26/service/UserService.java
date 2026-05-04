@@ -176,12 +176,18 @@ public class UserService {
 	}
 
 	public HighScoresResponseDTO updateHighScores(Long id, int[] reactionScores, int[] typingScores) {
+		return updateHighScores(id, reactionScores, typingScores, null);
+	}
+
+	public HighScoresResponseDTO updateHighScores(Long id, int[] reactionScores, int[] typingScores,
+			int[] timeIntervalScores) {
 		User user = userRepository.findById(id)
 			.orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, 
 			"User with id [" + id + "] not found"));
 
 		boolean reactionHighScoreUpdated = false;
 		boolean typingHighScoreUpdated = false;
+		boolean timeIntervalHighScoreUpdated = false;
 
 		// Update reaction time high score (lower is better, so check minimum)
 		if (reactionScores != null && reactionScores.length > 0) {
@@ -213,10 +219,27 @@ public class UserService {
 			}
 		}
 
+		// Update time interval high score (lower is better, so check minimum)
+		if (timeIntervalScores != null && timeIntervalScores.length > 0) {
+			int minTimeIntervalScore = Integer.MAX_VALUE;
+			for (int score : timeIntervalScores) {
+				if (score != -1 && score < minTimeIntervalScore) {
+					minTimeIntervalScore = score;
+				}
+			}
+			if (minTimeIntervalScore < Integer.MAX_VALUE) {
+				if (user.getTimeIntervalHighScore() == null || minTimeIntervalScore < user.getTimeIntervalHighScore()) {
+					user.setTimeIntervalHighScore(minTimeIntervalScore);
+					timeIntervalHighScoreUpdated = true;
+				}
+			}
+		}
+
 		userRepository.save(user);
 		userRepository.flush();
 
-		return new HighScoresResponseDTO(reactionHighScoreUpdated, typingHighScoreUpdated);
+		return new HighScoresResponseDTO(reactionHighScoreUpdated, typingHighScoreUpdated,
+				timeIntervalHighScoreUpdated);
 	}
 
 	// for leaderboard

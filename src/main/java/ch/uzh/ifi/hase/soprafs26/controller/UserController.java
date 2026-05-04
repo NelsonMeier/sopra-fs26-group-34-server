@@ -137,7 +137,8 @@ public class UserController {
 	public HighScoresResponseDTO updateHighScores(@PathVariable Long id, @RequestBody HighScoresDTO highScoresDTO, @RequestHeader("Authorization") String authHeader) {
 		String token = authHeader.replace("Bearer ", "");
 		userService.checkAuthentication(token);
-		return userService.updateHighScores(id, highScoresDTO.getReactionScores(), highScoresDTO.getTypingScores());
+		return userService.updateHighScores(id, highScoresDTO.getReactionScores(), highScoresDTO.getTypingScores(),
+				highScoresDTO.getTimeIntervalScores());
 	}
 
 	@GetMapping("/scoreboard")

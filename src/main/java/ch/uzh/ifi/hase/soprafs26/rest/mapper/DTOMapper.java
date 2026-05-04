@@ -13,7 +13,7 @@ import ch.uzh.ifi.hase.soprafs26.rest.dto.ScoreboardEntryDTO;
 import ch.uzh.ifi.hase.soprafs26.rest.dto.UserGetDTO;
 import ch.uzh.ifi.hase.soprafs26.rest.dto.UserPostDTO;
 import ch.uzh.ifi.hase.soprafs26.rest.dto.UserPublicGetDTO;
- import ch.uzh.ifi.hase.soprafs26.rest.dto.UserPutDTO;
+import ch.uzh.ifi.hase.soprafs26.rest.dto.UserPutDTO;
 @Mapper
 public interface DTOMapper {
 
@@ -36,6 +36,7 @@ public interface DTOMapper {
 	@Mapping(source = "creationDate", target = "creationDate")
 	@Mapping(source = "reactionHighScore", target = "reactionHighScore")
 	@Mapping(source = "typingHighScore", target = "typingHighScore")
+	@Mapping(source = "timeIntervalHighScore", target = "timeIntervalHighScore")
 	UserGetDTO convertEntityToUserGetDTO(User user);
 
 	@Mapping(source = "id", target = "id")
@@ -44,6 +45,7 @@ public interface DTOMapper {
 	@Mapping(source = "creationDate", target = "creationDate")
 	@Mapping(source = "reactionHighScore", target = "reactionHighScore")
 	@Mapping(source = "typingHighScore", target = "typingHighScore")
+	@Mapping(source = "timeIntervalHighScore", target = "timeIntervalHighScore")
 	UserPublicGetDTO convertEntityToUserPublicGetDTO(User user);
 
 	@Mapping(source = "password", target = "password")

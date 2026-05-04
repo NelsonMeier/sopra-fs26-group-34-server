@@ -51,6 +51,9 @@ public class User implements Serializable { //allows to b able to b conerted to 
 	@Column(nullable = true)
 	private Integer typingHighScore;
 
+	@Column(nullable = true)
+	private Integer timeIntervalHighScore;
+
 	public Long getId() {                 //need these function as the fields are private so not anyone can just modify directly
 		return id;
 	}											
@@ -114,5 +117,13 @@ public class User implements Serializable { //allows to b able to b conerted to 
 
 	public void setTypingHighScore(Integer typingHighScore) {
 		this.typingHighScore = typingHighScore;
+	}
+
+	public Integer getTimeIntervalHighScore() {
+		return timeIntervalHighScore;
+	}
+
+	public void setTimeIntervalHighScore(Integer timeIntervalHighScore) {
+		this.timeIntervalHighScore = timeIntervalHighScore;
 	}
 }

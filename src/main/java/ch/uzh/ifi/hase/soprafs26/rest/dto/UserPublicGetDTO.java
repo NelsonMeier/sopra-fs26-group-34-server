@@ -12,6 +12,7 @@ public class UserPublicGetDTO { // data sent back when viewing user profile
     private LocalDate creationDate;
     private Integer reactionHighScore;
     private Integer typingHighScore;
+	private Integer timeIntervalHighScore;
 
 
     public Long getId() {
@@ -61,6 +62,14 @@ public class UserPublicGetDTO { // data sent back when viewing user profile
 
 	public void setTypingHighScore(Integer typingHighScore) {
 		this.typingHighScore = typingHighScore;
+	}
+
+	public Integer getTimeIntervalHighScore() {
+		return timeIntervalHighScore;
+	}
+
+	public void setTimeIntervalHighScore(Integer timeIntervalHighScore) {
+		this.timeIntervalHighScore = timeIntervalHighScore;
 	}
 
 }

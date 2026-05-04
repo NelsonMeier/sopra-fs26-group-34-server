@@ -307,10 +307,11 @@ public class UserControllerTest {
         HighScoresDTO dto = new HighScoresDTO();
         dto.setReactionScores(new int[]{200, 180});
         dto.setTypingScores(new int[]{50, 60});
+        dto.setTimeIntervalScores(new int[]{1, 2});
 
         given(userService.checkAuthentication("testToken")).willReturn(true);
         given(userService.updateHighScores(Mockito.eq(1L), Mockito.any(), Mockito.any()))
-                .willReturn(new HighScoresResponseDTO(true, true));
+                .willReturn(new HighScoresResponseDTO(true, true, true));
 
         mockMvc.perform(put("/users/1/highscores")
                 .contentType(MediaType.APPLICATION_JSON)
@@ -318,7 +319,8 @@ public class UserControllerTest {
                 .content(asJsonString(dto)))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.reactionHighScoreUpdated").value(true))
-                .andExpect(jsonPath("$.typingHighScoreUpdated").value(true));
+                .andExpect(jsonPath("$.typingHighScoreUpdated").value(true))
+                .andExpect(jsonPath("$.timeIntervalHighScoreUpdated").value(true));
     }
 
     // getScoreboard from UserController
@@ -327,7 +329,8 @@ public class UserControllerTest {
         ScoreboardResponseDTO response = new ScoreboardResponseDTO();
         response.setScoreboards(Map.of(
             "reactionTime", new ArrayList<>(),
-            "typingSpeed", new ArrayList<>()
+            "typingSpeed", new ArrayList<>(),
+            "timeInterval", new ArrayList<>()
         ));
 
         given(userService.populateScoreboard()).willReturn(response);
@@ -335,6 +338,7 @@ public class UserControllerTest {
         mockMvc.perform(get("/scoreboard"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.scoreboards.reactionTime").exists())
-                .andExpect(jsonPath("$.scoreboards.typingSpeed").exists());
+                .andExpect(jsonPath("$.scoreboards.typingSpeed").exists())
+                .andExpect(jsonPath("$.scoreboards.timeInterval").exists());
     }
 }
