@@ -307,7 +307,7 @@ public class UserControllerTest {
         HighScoresDTO dto = new HighScoresDTO();
         dto.setReactionScores(new int[]{200, 180});
         dto.setTypingScores(new int[]{50, 60});
-        dto.setTimeIntervalScores(new int[]{1, 2});
+        dto.setTimeIntervalScores(new double[]{1.0, 2.0});
 
         given(userService.checkAuthentication("testToken")).willReturn(true);
         given(userService.updateHighScores(Mockito.eq(1L), Mockito.any(), Mockito.any(), Mockito.any()))
