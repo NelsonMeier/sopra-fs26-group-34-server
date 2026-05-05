@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.server.ResponseStatusException;
 
 import ch.uzh.ifi.hase.soprafs26.entity.User;
 import ch.uzh.ifi.hase.soprafs26.rest.dto.UserGetDTO;
@@ -94,7 +95,9 @@ public class UserController {
 	public UserPublicGetDTO getIdInformation(@PathVariable Long id,
                                           @RequestHeader("Authorization") String authHeader) { //id and token
     String token = authHeader.replace("Bearer ", ""); //replacing
-    userService.checkAuthentication(token);  //check token
+    if (!userService.checkUserAuthentication(id, token)) {
+        throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "You can only access your own profile.");
+    }
     
     User user = userService.getUserById(id); //get id
     return DTOMapper.INSTANCE.convertEntityToUserPublicGetDTO(user); //convert
