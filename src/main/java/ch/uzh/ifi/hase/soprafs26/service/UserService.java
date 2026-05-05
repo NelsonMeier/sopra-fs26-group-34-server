@@ -180,7 +180,7 @@ public class UserService {
 	}
 
 	public HighScoresResponseDTO updateHighScores(Long id, int[] reactionScores, int[] typingScores,
-			int[] timeIntervalScores) {
+			double[] timeIntervalScores) {
 		User user = userRepository.findById(id)
 			.orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, 
 			"User with id [" + id + "] not found"));
@@ -221,13 +221,13 @@ public class UserService {
 
 		// Update time interval high score (lower is better, so check minimum)
 		if (timeIntervalScores != null && timeIntervalScores.length > 0) {
-			int minTimeIntervalScore = Integer.MAX_VALUE;
-			for (int score : timeIntervalScores) {
+			double minTimeIntervalScore = Double.MAX_VALUE;
+			for (double score : timeIntervalScores) {
 				if (score != -1 && score < minTimeIntervalScore) {
 					minTimeIntervalScore = score;
 				}
 			}
-			if (minTimeIntervalScore < Integer.MAX_VALUE) {
+			if (minTimeIntervalScore < Double.MAX_VALUE) {
 				if (user.getTimeIntervalHighScore() == null || minTimeIntervalScore < user.getTimeIntervalHighScore()) {
 					user.setTimeIntervalHighScore(minTimeIntervalScore);
 					timeIntervalHighScoreUpdated = true;
