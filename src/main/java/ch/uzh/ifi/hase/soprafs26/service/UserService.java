@@ -255,6 +255,7 @@ public class UserService {
 		
 		List<User> topTenReactionRaw = userRepository.findTopReactionTimeScores(PageRequest.of(0, 10));
 		List<User> topTenTypingRaw = userRepository.findTopTypingSpeedScores(PageRequest.of(0, 10));
+		List<User> topTenIntervalRaw = userRepository.findTopTimeIntervalScores(PageRequest.of(0, 10));
 	
 		List<ScoreboardEntryDTO> topTenReactionConverted = new ArrayList<>();
 
@@ -266,14 +267,22 @@ public class UserService {
 		List<ScoreboardEntryDTO> topTenTypingConverted = new ArrayList<>();
 
 		for (int index = 0; index < topTenTypingRaw.size(); index++){
-    	ScoreboardEntryDTO convertedEntry = DTOMapper.INSTANCE.convertEntityToTypingScoreboardEntryDTO(topTenTypingRaw.get(index));
-    	topTenTypingConverted.add(convertedEntry);
+    		ScoreboardEntryDTO convertedEntry = DTOMapper.INSTANCE.convertEntityToTypingScoreboardEntryDTO(topTenTypingRaw.get(index));
+    		topTenTypingConverted.add(convertedEntry);
+		}
+
+		List<ScoreboardEntryDTO> topTenIntervalConverted = new ArrayList<>();
+		
+		for (int index=0; index < topTenIntervalRaw.size(); index++) {
+			ScoreboardEntryDTO convertedEntry = DTOMapper.INSTANCE.convertEntityToIntervalScoreboardEntryDTO(topTenIntervalRaw.get(index));
+			topTenIntervalConverted.add(convertedEntry);
 		}
 
 		ScoreboardResponseDTO response = new ScoreboardResponseDTO();
 		response.setScoreboards(Map.of(
     	"reactionTime", topTenReactionConverted,
-    	"typingSpeed", topTenTypingConverted
+    	"typingSpeed", topTenTypingConverted,
+		"timeInterval", topTenIntervalConverted
 		));
 		return response;
 	}

@@ -20,4 +20,7 @@ public interface UserRepository extends JpaRepository<User, Long> {
     @Query("SELECT u FROM User u WHERE u.typingHighScore IS NOT NULL ORDER BY u.typingHighScore DESC")
     List<User> findTopTypingSpeedScores(Pageable pageable);
 	List<User> findByUsernameStartingWith(String prefix);
+
+	@Query("SELECT u FROM User u WHERE u.timeIntervalHighScore IS NOT NULL ORDER BY u.timeIntervalHighScore ASC")
+	List<User> findTopTimeIntervalScores(Pageable pageable);
 }
