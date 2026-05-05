@@ -349,7 +349,7 @@ public class UserServiceTest {
 	public void searchUsersByUsernamePrefix_success() {
 		List<User> users = List.of(testUser);
 
-		Mockito.when(userRepository.findByUsernameStartingWith("test"))
+		Mockito.when(userRepository.findByUsernameStartingWithIgnoreCase("test"))
 			.thenReturn(users);
 
 		List<User> result = userService.searchUsersByUsernamePrefix("test");
