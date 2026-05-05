@@ -289,6 +289,6 @@ public class UserService {
 
 	// search users by username prefix 
 	public List<User> searchUsersByUsernamePrefix(String prefix) {
-		return userRepository.findByUsernameStartingWith(prefix);
+		return userRepository.findByUsernameStartingWithIgnoreCase(prefix);
 	}
 }

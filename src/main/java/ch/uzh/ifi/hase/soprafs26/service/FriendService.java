@@ -140,6 +140,12 @@ public class FriendService {
         friendRepository.delete(friendship2);
         friendRepository.flush();
 
+        FriendRequest req1 = friendRequestRepository.findBySenderIdAndReceiverId(userId, friendId);
+        if (req1 != null) friendRequestRepository.delete(req1);
+        FriendRequest req2 = friendRequestRepository.findBySenderIdAndReceiverId(friendId, userId);
+        if (req2 != null) friendRequestRepository.delete(req2);
+        friendRequestRepository.flush();
+
         log.debug("Friendship between user {} and user {} deleted", userId, friendId);
     }
 
