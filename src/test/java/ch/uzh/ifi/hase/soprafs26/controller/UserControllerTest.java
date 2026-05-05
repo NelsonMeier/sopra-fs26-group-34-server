@@ -149,7 +149,7 @@ public class UserControllerTest {
     user.setStatus(UserStatus.ONLINE);
 
     given(userService.getUserById(1L)).willReturn(user); //return fake user
-    given(userService.checkAuthentication("testToken")).willReturn(true); //return true
+    given(userService.checkUserAuthentication(1L, "testToken")).willReturn(true); //return true
 
     mockMvc.perform(get("/users/1") //simulate get request
             .contentType(MediaType.APPLICATION_JSON)
@@ -163,9 +163,9 @@ public class UserControllerTest {
     // test calling user GET that does not exist
     @Test
 	public void getUserById_invalidId_returns404() throws Exception {
+    given(userService.checkUserAuthentication(99L, "testToken")).willReturn(true); //return true
     given(userService.getUserById(Mockito.any()))
             .willThrow(new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found!")); //throw exception
-    given(userService.checkAuthentication("testToken")).willReturn(true); //return true
 
     mockMvc.perform(get("/users/99") //simulate
             .contentType(MediaType.APPLICATION_JSON)
@@ -310,7 +310,7 @@ public class UserControllerTest {
         dto.setTimeIntervalScores(new int[]{1, 2});
 
         given(userService.checkAuthentication("testToken")).willReturn(true);
-        given(userService.updateHighScores(Mockito.eq(1L), Mockito.any(), Mockito.any()))
+        given(userService.updateHighScores(Mockito.eq(1L), Mockito.any(), Mockito.any(), Mockito.any()))
                 .willReturn(new HighScoresResponseDTO(true, true, true));
 
         mockMvc.perform(put("/users/1/highscores")
