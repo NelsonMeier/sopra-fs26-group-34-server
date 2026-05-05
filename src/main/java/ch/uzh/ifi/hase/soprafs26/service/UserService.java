@@ -180,7 +180,7 @@ public class UserService {
 	}
 
 	public HighScoresResponseDTO updateHighScores(Long id, int[] reactionScores, int[] typingScores,
-			int[] timeIntervalScores) {
+			double[] timeIntervalScores) {
 		User user = userRepository.findById(id)
 			.orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, 
 			"User with id [" + id + "] not found"));
@@ -221,13 +221,13 @@ public class UserService {
 
 		// Update time interval high score (lower is better, so check minimum)
 		if (timeIntervalScores != null && timeIntervalScores.length > 0) {
-			int minTimeIntervalScore = Integer.MAX_VALUE;
-			for (int score : timeIntervalScores) {
+			double minTimeIntervalScore = Double.MAX_VALUE;
+			for (double score : timeIntervalScores) {
 				if (score != -1 && score < minTimeIntervalScore) {
 					minTimeIntervalScore = score;
 				}
 			}
-			if (minTimeIntervalScore < Integer.MAX_VALUE) {
+			if (minTimeIntervalScore < Double.MAX_VALUE) {
 				if (user.getTimeIntervalHighScore() == null || minTimeIntervalScore < user.getTimeIntervalHighScore()) {
 					user.setTimeIntervalHighScore(minTimeIntervalScore);
 					timeIntervalHighScoreUpdated = true;
@@ -255,6 +255,7 @@ public class UserService {
 		
 		List<User> topTenReactionRaw = userRepository.findTopReactionTimeScores(PageRequest.of(0, 10));
 		List<User> topTenTypingRaw = userRepository.findTopTypingSpeedScores(PageRequest.of(0, 10));
+		List<User> topTenIntervalRaw = userRepository.findTopTimeIntervalScores(PageRequest.of(0, 10));
 	
 		List<ScoreboardEntryDTO> topTenReactionConverted = new ArrayList<>();
 
@@ -266,14 +267,22 @@ public class UserService {
 		List<ScoreboardEntryDTO> topTenTypingConverted = new ArrayList<>();
 
 		for (int index = 0; index < topTenTypingRaw.size(); index++){
-    	ScoreboardEntryDTO convertedEntry = DTOMapper.INSTANCE.convertEntityToTypingScoreboardEntryDTO(topTenTypingRaw.get(index));
-    	topTenTypingConverted.add(convertedEntry);
+    		ScoreboardEntryDTO convertedEntry = DTOMapper.INSTANCE.convertEntityToTypingScoreboardEntryDTO(topTenTypingRaw.get(index));
+    		topTenTypingConverted.add(convertedEntry);
+		}
+
+		List<ScoreboardEntryDTO> topTenIntervalConverted = new ArrayList<>();
+		
+		for (int index=0; index < topTenIntervalRaw.size(); index++) {
+			ScoreboardEntryDTO convertedEntry = DTOMapper.INSTANCE.convertEntityToIntervalScoreboardEntryDTO(topTenIntervalRaw.get(index));
+			topTenIntervalConverted.add(convertedEntry);
 		}
 
 		ScoreboardResponseDTO response = new ScoreboardResponseDTO();
 		response.setScoreboards(Map.of(
     	"reactionTime", topTenReactionConverted,
-    	"typingSpeed", topTenTypingConverted
+    	"typingSpeed", topTenTypingConverted,
+		"timeInterval", topTenIntervalConverted
 		));
 		return response;
 	}

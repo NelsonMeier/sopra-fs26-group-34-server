@@ -2,7 +2,7 @@ package ch.uzh.ifi.hase.soprafs26.rest.dto;
 
 public class ScoreboardEntryDTO {
     private String username;
-    private Integer score;
+    private Double score;
 
     // Addition for Spring
     public ScoreboardEntryDTO() {
@@ -16,10 +16,10 @@ public class ScoreboardEntryDTO {
         return username;
     }
 
-    public void setScore(Integer score) {
+    public void setScore(Double score) {
         this.score = score;
     }
-    public Integer getScore() {
+    public Double getScore() {
         return score;
     }
 }
