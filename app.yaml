@@ -15,4 +15,7 @@ runtime_config:
 readiness_check:
   app_start_timeout_sec: 300
 
+network:
+  session_affinity: true
+
 
