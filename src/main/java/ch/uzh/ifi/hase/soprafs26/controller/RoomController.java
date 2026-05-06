@@ -25,10 +25,15 @@ public class RoomController {
     public void createRoom(@Payload Map<String, String> payload) { //when client sends to createRoom this runs
         String roomId  = payload.get("roomId");
         Long   adminId = Long.parseLong(payload.get("adminId"));  //reading 
-        Room   room    = new Room(roomId, adminId);
+        String adminUsername = payload.get("adminUsername");
+        Room   room    = new Room(roomId, adminId, adminUsername);
+
+        room.invitePlayer(adminUsername);
+        room.joinPlayer(adminUsername);
+
         rooms.put(roomId, room);
         messagingTemplate.convertAndSend("/topic/room/" + roomId, //broadcasts to everyone in room
-                (Object) Map.of("type", "ROOM_CREATED", "adminId", String.valueOf(adminId)));
+                (Object) Map.of("type", "ROOM_STATE", "players", room.getJoinedPlayers()));
     }
 
     @MessageMapping("/inviteRoom")
@@ -53,7 +58,7 @@ public class RoomController {
         if (room != null && room.getInvitedPlayers().contains(username)) {
             room.joinPlayer(username);
             messagingTemplate.convertAndSend("/topic/room/" + roomId,
-                    (Object) Map.of("type", "PLAYER_JOINED", "username", username));
+                    (Object) Map.of("type", "ROOM_STATE", "players", room.getJoinedPlayers()));
         }
     }
 

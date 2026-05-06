@@ -11,6 +11,7 @@ public class Room {
 
     private final String roomId;
     private final Long adminId;
+    private final String adminUsername;
 
     private final LinkedHashMap<String, Integer> gameQueue = new LinkedHashMap<>();
     private int currentGameIndex = 0;
@@ -24,9 +25,10 @@ public class Room {
 
     private Map<String, Map<String, Integer>> roundScores = new ConcurrentHashMap<>();
 
-    public Room(String roomId, Long adminId) {
+    public Room(String roomId, Long adminId, String adminUsername) {
         this.roomId  = roomId;
         this.adminId = adminId;
+        this.adminUsername = adminUsername;
     }
 
     public void setGameSegment(String game, int rounds) {
@@ -80,6 +82,7 @@ public class Room {
 
     public String getRoomId()  { return roomId;  }
     public Long   getAdminId() { return adminId; }
+    public String getAdminUsername() { return adminUsername; }
 
     public String getSelectedGame() { return getCurrentGame(); }
     public int    getRounds()       { return getCurrentRounds(); }
@@ -98,7 +101,7 @@ public class Room {
         if (invitedPlayers.contains(username)) joinedPlayers.add(username);
     }
 
-    public int expectedPlayerCount() { return joinedPlayers.size() + 1; }
+    public int expectedPlayerCount() { return joinedPlayers.size(); }
 
     public boolean submitScore(String round, String username, int score) {
         roundScores.computeIfAbsent(round, k -> new ConcurrentHashMap<>())
