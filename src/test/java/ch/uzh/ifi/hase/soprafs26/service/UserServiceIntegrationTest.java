@@ -160,7 +160,7 @@ public class UserServiceIntegrationTest {
 	// tests scoreboard generation and ensures response structure is correctly returned
 	@Test
 	public void populateScoreboard_returnsNotNull() {
-		var response = userService.populateScoreboard();
+		var response = userService.populateScoreboard(false, null);
 
 		assertNotNull(response);
 		assertNotNull(response.getScoreboards());

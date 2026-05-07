@@ -333,9 +333,10 @@ public class UserControllerTest {
             "timeInterval", new ArrayList<>()
         ));
 
-        given(userService.populateScoreboard()).willReturn(response);
+        given(userService.populateScoreboard(false, null)).willReturn(response);
 
-        mockMvc.perform(get("/scoreboard"))
+        mockMvc.perform(get("/scoreboard")
+            .header("Authorization", "Bearer testToken"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.scoreboards.reactionTime").exists())
                 .andExpect(jsonPath("$.scoreboards.typingSpeed").exists())
