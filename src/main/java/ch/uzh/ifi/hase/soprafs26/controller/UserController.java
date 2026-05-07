@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
@@ -146,8 +147,18 @@ public class UserController {
 
 	@GetMapping("/scoreboard")
 	@ResponseStatus(HttpStatus.OK)
-	public ScoreboardResponseDTO getScoreboard() {
-		ScoreboardResponseDTO scoreboards = userService.populateScoreboard();
+	public ScoreboardResponseDTO getScoreboard(
+			@RequestParam(defaultValue = "false") boolean friendsOnly,
+			@RequestHeader("Authorization") String authHeader) {
+
+		if (friendsOnly) {
+			String token = authHeader.replace("Bearer ", "");
+			User user = userService.getUserByToken(token);
+			ScoreboardResponseDTO scoreboards = userService.populateScoreboard(true, user.getId());
+			return scoreboards;
+		}
+
+		ScoreboardResponseDTO scoreboards = userService.populateScoreboard(false, null);
 		return scoreboards;
 	}
 }
