@@ -342,4 +342,28 @@ public class UserControllerTest {
                 .andExpect(jsonPath("$.scoreboards.typingSpeed").exists())
                 .andExpect(jsonPath("$.scoreboards.timeInterval").exists());
     }
+
+    @Test
+    public void getScoreboard_friendsOnly_returns200() throws Exception {
+        User user = new User();
+        user.setId(1L);
+
+        ScoreboardResponseDTO response = new ScoreboardResponseDTO();
+        response.setScoreboards(Map.of(
+            "reactionTime", new ArrayList<>(),
+            "typingSpeed", new ArrayList<>(),
+            "timeInterval", new ArrayList<>()
+        ));
+
+        given(userService.getUserByToken("testToken")).willReturn(user);
+        given(userService.populateScoreboard(true, 1L)).willReturn(response);
+
+        mockMvc.perform(get("/scoreboard")
+            .queryParam("friendsOnly", "true")
+            .header("Authorization", "Bearer testToken"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.scoreboards.reactionTime").exists())
+                .andExpect(jsonPath("$.scoreboards.typingSpeed").exists())
+                .andExpect(jsonPath("$.scoreboards.timeInterval").exists());
+    }
 }
