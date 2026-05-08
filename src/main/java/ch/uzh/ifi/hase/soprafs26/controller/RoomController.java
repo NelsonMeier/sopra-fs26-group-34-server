@@ -25,10 +25,15 @@ public class RoomController {
     public void createRoom(@Payload Map<String, String> payload) { //when client sends to createRoom this runs
         String roomId  = payload.get("roomId");
         Long   adminId = Long.parseLong(payload.get("adminId"));  //reading 
-        Room   room    = new Room(roomId, adminId);
+        String adminUsername = payload.get("adminUsername");
+        Room   room    = new Room(roomId, adminId, adminUsername);
+
+        room.invitePlayer(adminUsername);
+        room.joinPlayer(adminUsername);
+
         rooms.put(roomId, room);
         messagingTemplate.convertAndSend("/topic/room/" + roomId, //broadcasts to everyone in room
-                (Object) Map.of("type", "ROOM_CREATED", "adminId", String.valueOf(adminId)));
+                (Object) Map.of("type", "ROOM_STATE", "players", room.getJoinedPlayers()));
     }
 
     @MessageMapping("/inviteRoom")
@@ -50,10 +55,27 @@ public class RoomController {
         String roomId   = payload.get("roomId");
         String username = payload.get("username"); //gets info id and who to join
         Room   room     = rooms.get(roomId);
+
+        if (room == null) {return;}
+
+        if (room.isGameStarted()) {
+            messagingTemplate.convertAndSend("/topic/join/" + username,
+                    (Object) Map.of("type", "JOIN_DENIED", "reason", "Game already started"));
+            return;
+        }
+
+        messagingTemplate.convertAndSend(
+            "/topic/join/" + username,
+            (Object)Map.of(
+                "type", "JOIN_SUCCESS",
+                "roomId", roomId
+            )
+        );
+
         if (room != null && room.getInvitedPlayers().contains(username)) {
             room.joinPlayer(username);
             messagingTemplate.convertAndSend("/topic/room/" + roomId,
-                    (Object) Map.of("type", "PLAYER_JOINED", "username", username));
+                    (Object) Map.of("type", "ROOM_STATE", "players", room.getJoinedPlayers()));
         }
     }
 
@@ -81,7 +103,19 @@ public class RoomController {
         Room   room   = rooms.get(roomId);
         if (room == null) return;
 
+        for (String username : room.getInvitedPlayers()) {
+            messagingTemplate.convertAndSend(
+                "/topic/invite/" + username,
+                (Object) Map.of(
+                    "type", "INVITE_CANCELLED",
+                    "roomId", roomId
+                )
+            );
+        }
+
         room.setGameStarted(true);
+
+        room.getInvitedPlayers().clear(); //clear invited players as game starts
 
         messagingTemplate.convertAndSend("/topic/room/" + roomId,
                 (Object) Map.of(
