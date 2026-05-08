@@ -56,6 +56,8 @@ public class RoomController {
         String username = payload.get("username"); //gets info id and who to join
         Room   room     = rooms.get(roomId);
 
+        if (room == null) {return;}
+
         if (room.isGameStarted()) {
             messagingTemplate.convertAndSend("/topic/join/" + username,
                     (Object) Map.of("type", "JOIN_DENIED", "reason", "Game already started"));
