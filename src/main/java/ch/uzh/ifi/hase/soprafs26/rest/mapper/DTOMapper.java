@@ -46,6 +46,9 @@ public interface DTOMapper {
 	@Mapping(source = "reactionHighScore", target = "reactionHighScore")
 	@Mapping(source = "typingHighScore", target = "typingHighScore")
 	@Mapping(source = "timeIntervalHighScore", target = "timeIntervalHighScore")
+	@Mapping(target = "reaction", ignore = true)
+	@Mapping(target = "typing", ignore = true)
+	@Mapping(target = "timeInterval", ignore = true)
 	UserPublicGetDTO convertEntityToUserPublicGetDTO(User user);
 
 	@Mapping(source = "password", target = "password")

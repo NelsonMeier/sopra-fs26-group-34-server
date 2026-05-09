@@ -10,12 +10,12 @@ public class UserPublicGetDTO { // data sent back when viewing user profile
     private String username;
     private UserStatus status;
     private LocalDate creationDate;
-    private Integer reactionHighScore;
-    private Integer typingHighScore;
+	private Integer reactionHighScore;
+	private Integer typingHighScore;
 	private Integer timeIntervalHighScore;
-    private Integer reactionRank;
-    private Integer typingRank;
-	private Integer timeIntervalRank;
+	private GameRankDTO reaction;
+	private GameRankDTO typing;
+	private GameRankDTO timeInterval;
 
     public Long getId() {
 		return id;
@@ -74,27 +74,27 @@ public class UserPublicGetDTO { // data sent back when viewing user profile
 		this.timeIntervalHighScore = timeIntervalHighScore;
 	}
 
-	public Integer getReactionRank() {
-		return reactionRank;
+	public GameRankDTO getReaction() {
+		return reaction;
 	}
 
-	public void setReactionRank(Integer reactionRank) {
-		this.reactionRank = reactionRank;
+	public void setReaction(GameRankDTO reaction) {
+		this.reaction = reaction;
 	}
 
-	public Integer getTypingRank() {
-		return typingRank;
+	public GameRankDTO getTyping() {
+		return typing;
 	}
 
-	public void setTypingRank(Integer typingRank) {
-		this.typingRank = typingRank;
+	public void setTyping(GameRankDTO typing) {
+		this.typing = typing;
 	}
 
-	public Integer getTimeIntervalRank() {
-		return timeIntervalRank;
+	public GameRankDTO getTimeInterval() {
+		return timeInterval;
 	}
 
-	public void setTimeIntervalRank(Integer timeIntervalRank) {
-		this.timeIntervalRank = timeIntervalRank;
-	}	
+	public void setTimeInterval(GameRankDTO timeInterval) {
+		this.timeInterval = timeInterval;
+	}
 }
