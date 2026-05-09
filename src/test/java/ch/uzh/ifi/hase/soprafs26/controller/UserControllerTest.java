@@ -150,6 +150,7 @@ public class UserControllerTest {
 
     given(userService.getUserById(1L)).willReturn(user); //return fake user
     given(userService.checkUserAuthentication(1L, "testToken")).willReturn(true); //return true
+    given(userService.getUserRanks(1L)).willReturn(new Object[] { 1, 2, 3 });
 
     mockMvc.perform(get("/users/1") //simulate get request
             .contentType(MediaType.APPLICATION_JSON)
