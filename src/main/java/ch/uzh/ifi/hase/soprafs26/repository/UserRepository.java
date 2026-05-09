@@ -26,12 +26,12 @@ public interface UserRepository extends JpaRepository<User, Long> {
 	@Query("SELECT u FROM User u WHERE u.timeIntervalHighScore IS NOT NULL ORDER BY u.timeIntervalHighScore ASC")
 	List<User> findTopTimeIntervalScores(Pageable pageable);
 
-	@Query("SELECT u FROM User u JOIN Friend f ON f.friend = u WHERE f.user.id = :userId AND u.reactionHighScore IS NOT NULL ORDER BY u.reactionHighScore ASC")
+	@Query("SELECT u FROM User u JOIN Friend f ON f.friend = u WHERE (f.user.id = :userId OR u.id = :userId) AND u.reactionHighScore IS NOT NULL ORDER BY u.reactionHighScore ASC")
 	List<User> findFriendsTopReactionTimeScores(@Param("userId") Long userId, Pageable pageable);
 
-	@Query("SELECT u FROM User u JOIN Friend f ON f.friend = u WHERE f.user.id = :userId AND u.typingHighScore IS NOT NULL ORDER BY u.typingHighScore DESC")
+	@Query("SELECT u FROM User u JOIN Friend f ON f.friend = u WHERE (f.user.id = :userId OR u.id = :userId) AND u.typingHighScore IS NOT NULL ORDER BY u.typingHighScore DESC")
 	List<User> findFriendsTopTypingSpeedScores(@Param("userId") Long userId, Pageable pageable);
 
-	@Query("SELECT u FROM User u JOIN Friend f ON f.friend = u WHERE f.user.id = :userId AND u.timeIntervalHighScore IS NOT NULL ORDER BY u.timeIntervalHighScore ASC")
+	@Query("SELECT u FROM User u JOIN Friend f ON f.friend = u WHERE (f.user.id = :userId OR u.id = :userId) AND u.timeIntervalHighScore IS NOT NULL ORDER BY u.timeIntervalHighScore ASC")
 	List<User> findFriendsTopTimeIntervalScores(@Param("userId") Long userId, Pageable pageable);
 }
