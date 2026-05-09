@@ -127,6 +127,14 @@ public class UserService {
 
 	}
 
+	public User getUserByToken(String token) {
+		User user = userRepository.findByToken(token);
+		if (user == null) {
+			throw new ResponseStatusException(HttpStatus.FORBIDDEN, "No valid user is logged in with this provided token");
+		}
+		return user;
+	}
+
 
 	public boolean checkUserAuthentication(Long id, String token) { //check if belong
 
@@ -251,12 +259,25 @@ public class UserService {
 		return leaderboards.getOrDefault(gameId, new ConcurrentHashMap<>()); }
     
     
-	public ScoreboardResponseDTO populateScoreboard(){
+	public ScoreboardResponseDTO populateScoreboard(boolean friendsOnly, Long id){
 		
-		List<User> topTenReactionRaw = userRepository.findTopReactionTimeScores(PageRequest.of(0, 10));
-		List<User> topTenTypingRaw = userRepository.findTopTypingSpeedScores(PageRequest.of(0, 10));
-		List<User> topTenIntervalRaw = userRepository.findTopTimeIntervalScores(PageRequest.of(0, 10));
-	
+		List<User> topTenReactionRaw;
+		List<User> topTenTypingRaw;
+		List<User> topTenIntervalRaw;
+
+		if (!friendsOnly) {
+			topTenReactionRaw = userRepository.findTopReactionTimeScores(PageRequest.of(0, 10));
+			topTenTypingRaw = userRepository.findTopTypingSpeedScores(PageRequest.of(0, 10));
+			topTenIntervalRaw = userRepository.findTopTimeIntervalScores(PageRequest.of(0, 10));
+		} else {
+			if (id == null) {
+				throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Missing user id for friends-only scoreboard");
+			}
+			topTenReactionRaw = userRepository.findFriendsTopReactionTimeScores(id, PageRequest.of(0, 10));
+			topTenTypingRaw = userRepository.findFriendsTopTypingSpeedScores(id, PageRequest.of(0, 10));
+			topTenIntervalRaw = userRepository.findFriendsTopTimeIntervalScores(id, PageRequest.of(0, 10));
+		}
+
 		List<ScoreboardEntryDTO> topTenReactionConverted = new ArrayList<>();
 
 		for (int index=0; index < topTenReactionRaw.size(); index++){
