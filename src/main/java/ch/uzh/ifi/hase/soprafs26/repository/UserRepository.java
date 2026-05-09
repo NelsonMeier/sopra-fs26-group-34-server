@@ -34,4 +34,13 @@ public interface UserRepository extends JpaRepository<User, Long> {
 
 	@Query("SELECT u FROM User u JOIN Friend f ON f.friend = u WHERE f.user.id = :userId AND u.timeIntervalHighScore IS NOT NULL ORDER BY u.timeIntervalHighScore ASC")
 	List<User> findFriendsTopTimeIntervalScores(@Param("userId") Long userId, Pageable pageable);
+
+	@Query("SELECT COUNT(u) FROM User u WHERE u.reactionHighScore IS NOT NULL AND u.reactionHighScore < :score")
+	long countBetterReaction(@Param("score") Integer score);
+
+	@Query("SELECT COUNT(u) FROM User u WHERE u.typingHighScore IS NOT NULL AND u.typingHighScore > :score")
+	long countBetterTyping(@Param("score") Integer score);
+
+	@Query("SELECT COUNT(u) FROM User u WHERE u.timeIntervalHighScore IS NOT NULL AND u.timeIntervalHighScore < :score")
+	long countBetterTimeInterval(@Param("score") Double score);
 }
