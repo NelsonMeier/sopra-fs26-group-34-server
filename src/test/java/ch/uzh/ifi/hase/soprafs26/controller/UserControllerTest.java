@@ -308,10 +308,11 @@ public class UserControllerTest {
         dto.setReactionScores(new int[]{200, 180});
         dto.setTypingScores(new int[]{50, 60});
         dto.setTimeIntervalScores(new double[]{1.0, 2.0});
+        dto.setAimTestScores(new int[]{5, 8});
 
         given(userService.checkAuthentication("testToken")).willReturn(true);
-        given(userService.updateHighScores(Mockito.eq(1L), Mockito.any(), Mockito.any(), Mockito.any()))
-                .willReturn(new HighScoresResponseDTO(true, true, true));
+        given(userService.updateHighScores(Mockito.eq(1L), Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any()))
+                .willReturn(new HighScoresResponseDTO(true, true, true, true));
 
         mockMvc.perform(put("/users/1/highscores")
                 .contentType(MediaType.APPLICATION_JSON)
@@ -320,7 +321,8 @@ public class UserControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.reactionHighScoreUpdated").value(true))
                 .andExpect(jsonPath("$.typingHighScoreUpdated").value(true))
-                .andExpect(jsonPath("$.timeIntervalHighScoreUpdated").value(true));
+                .andExpect(jsonPath("$.timeIntervalHighScoreUpdated").value(true))
+                .andExpect(jsonPath("$.aimTestHighScoreUpdated").value(true));
     }
 
     // getScoreboard from UserController
