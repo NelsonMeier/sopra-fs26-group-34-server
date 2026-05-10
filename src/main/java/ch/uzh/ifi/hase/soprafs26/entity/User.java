@@ -54,6 +54,9 @@ public class User implements Serializable { //allows to b able to b conerted to 
 	@Column(nullable = true)
 	private Double timeIntervalHighScore;
 
+	@Column(nullable = true)
+	private Integer aimTestHighScore;
+
 	public Long getId() {                 //need these function as the fields are private so not anyone can just modify directly
 		return id;
 	}											
@@ -125,5 +128,13 @@ public class User implements Serializable { //allows to b able to b conerted to 
 
 	public void setTimeIntervalHighScore(Double timeIntervalHighScore) {
 		this.timeIntervalHighScore = timeIntervalHighScore;
+	}
+
+	public Integer getAimTestHighScore() {
+		return aimTestHighScore;
+	}
+
+	public void setAimTestHighScore(Integer aimTestHighScore) {
+		this.aimTestHighScore = aimTestHighScore;
 	}
 }

@@ -5,6 +5,7 @@ public class HighScoresDTO { //data sent when updating high scores
     private int[] reactionScores;
     private int[] typingScores;
     private double[] timeIntervalScores;
+    private int[] aimTestScores;
 
     public int[] getReactionScores() {
         return reactionScores;
@@ -28,6 +29,14 @@ public class HighScoresDTO { //data sent when updating high scores
 
     public void setTimeIntervalScores(double[] timeIntervalScores) {
         this.timeIntervalScores = timeIntervalScores;
+    }
+
+    public int[] getAimTestScores() {
+        return aimTestScores;
+    }
+
+    public void setAimTestScores(int[] aimTestScores){
+        this.aimTestScores = aimTestScores;
     }
 
 }

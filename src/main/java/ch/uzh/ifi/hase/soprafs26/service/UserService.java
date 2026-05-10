@@ -184,11 +184,11 @@ public class UserService {
 	}
 
 	public HighScoresResponseDTO updateHighScores(Long id, int[] reactionScores, int[] typingScores) {
-		return updateHighScores(id, reactionScores, typingScores, null);
+		return updateHighScores(id, reactionScores, typingScores, null, null);
 	}
 
 	public HighScoresResponseDTO updateHighScores(Long id, int[] reactionScores, int[] typingScores,
-			double[] timeIntervalScores) {
+			double[] timeIntervalScores, int [] aimTestScores) {
 		User user = userRepository.findById(id)
 			.orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, 
 			"User with id [" + id + "] not found"));
@@ -196,7 +196,7 @@ public class UserService {
 		boolean reactionHighScoreUpdated = false;
 		boolean typingHighScoreUpdated = false;
 		boolean timeIntervalHighScoreUpdated = false;
-
+		boolean aimTestHighScoreUpdated = false;
 		// Update reaction time high score (lower is better, so check minimum)
 		if (reactionScores != null && reactionScores.length > 0) {
 			int minReactionScore = Integer.MAX_VALUE;
@@ -243,11 +243,25 @@ public class UserService {
 			}
 		}
 
+		//update aim test high score (higher is better, so check maximum)
+		if (aimTestScores != null && aimTestScores.length > 0) {
+			int maxAimTestScore = 0;
+			for (int score : aimTestScores) {
+				if (score > maxAimTestScore) {
+					maxAimTestScore = score;
+				}
+			}
+			if (user.getAimTestHighScore() == null || maxAimTestScore > user.getAimTestHighScore()) {
+				user.setAimTestHighScore(maxAimTestScore);
+				aimTestHighScoreUpdated = true;
+			}
+		}
+
 		userRepository.save(user);
 		userRepository.flush();
 
 		return new HighScoresResponseDTO(reactionHighScoreUpdated, typingHighScoreUpdated,
-				timeIntervalHighScoreUpdated);
+				timeIntervalHighScoreUpdated, aimTestHighScoreUpdated);
 	}
 
 	// for leaderboard
