@@ -322,6 +322,31 @@ public class UserService {
 		return response;
 	}
 
+	public Object[] getUserRanks(Long id) {
+		User user = getUserById(id);
+
+		Integer reactionRank = null;
+		Integer typingRank = null;
+		Integer timeIntervalRank = null;
+
+		Integer reactionScore = user.getReactionHighScore();
+		if (reactionScore != null && reactionScore >= 0) {
+			reactionRank = Math.toIntExact(userRepository.countBetterReaction(reactionScore) + 1);
+		}
+
+		Integer typingScore = user.getTypingHighScore();
+		if (typingScore != null && typingScore >= 0) {
+			typingRank = Math.toIntExact(userRepository.countBetterTyping(typingScore) + 1);
+		}
+
+		Double timeIntervalScore = user.getTimeIntervalHighScore();
+		if (timeIntervalScore != null && timeIntervalScore >= 0) {
+			timeIntervalRank = Math.toIntExact(userRepository.countBetterTimeInterval(timeIntervalScore) + 1);
+		}
+
+		return new Object[] { reactionRank, typingRank, timeIntervalRank };
+	}
+
 	// search users by username prefix 
 	public List<User> searchUsersByUsernamePrefix(String prefix) {
 		return userRepository.findByUsernameStartingWithIgnoreCase(prefix);

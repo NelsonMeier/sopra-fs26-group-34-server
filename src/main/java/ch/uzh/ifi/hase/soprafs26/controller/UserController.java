@@ -17,6 +17,7 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
 
 import ch.uzh.ifi.hase.soprafs26.entity.User;
+import ch.uzh.ifi.hase.soprafs26.rest.dto.GameRankDTO;
 import ch.uzh.ifi.hase.soprafs26.rest.dto.UserGetDTO;
 import ch.uzh.ifi.hase.soprafs26.rest.dto.UserPostDTO;
 import ch.uzh.ifi.hase.soprafs26.rest.dto.UserPublicGetDTO;
@@ -93,15 +94,33 @@ public class UserController {
 	@GetMapping("/users/{id}")
 	@ResponseStatus(HttpStatus.OK)
 	@ResponseBody
-	public UserPublicGetDTO getIdInformation(@PathVariable Long id,
-                                          @RequestHeader("Authorization") String authHeader) { //id and token
+	public UserPublicGetDTO getIdInformation(
+		@PathVariable Long id,
+		@RequestHeader("Authorization") String authHeader) { //id and token
     String token = authHeader.replace("Bearer ", ""); //replacing
     if (!userService.checkUserAuthentication(id, token)) {
         throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "You can only access your own profile.");
     }
     
     User user = userService.getUserById(id); //get id
-    return DTOMapper.INSTANCE.convertEntityToUserPublicGetDTO(user); //convert
+	Object[] ranks = userService.getUserRanks(id);
+	GameRankDTO reaction = new GameRankDTO();
+	reaction.setScore(user.getReactionHighScore() != null ? user.getReactionHighScore().doubleValue() : null);
+	reaction.setRank((Integer) ranks[0]);
+
+	GameRankDTO typing = new GameRankDTO();
+	typing.setScore(user.getTypingHighScore() != null ? user.getTypingHighScore().doubleValue() : null);
+	typing.setRank((Integer) ranks[1]);
+
+	GameRankDTO timeInterval = new GameRankDTO();
+	timeInterval.setScore(user.getTimeIntervalHighScore());
+	timeInterval.setRank((Integer) ranks[2]);
+
+    UserPublicGetDTO dto = DTOMapper.INSTANCE.convertEntityToUserPublicGetDTO(user); //convert
+	dto.setReaction(reaction);
+	dto.setTyping(typing);
+	dto.setTimeInterval(timeInterval);
+	return dto;
 }
 
 	@PostMapping("/logout/{id}")
