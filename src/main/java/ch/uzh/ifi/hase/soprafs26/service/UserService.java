@@ -184,11 +184,11 @@ public class UserService {
 	}
 
 	public HighScoresResponseDTO updateHighScores(Long id, int[] reactionScores, int[] typingScores) {
-		return updateHighScores(id, reactionScores, typingScores, null, null);
+		return updateHighScores(id, reactionScores, typingScores, null, null, null);
 	}
 
 	public HighScoresResponseDTO updateHighScores(Long id, int[] reactionScores, int[] typingScores,
-			double[] timeIntervalScores, int [] aimTestScores) {
+			double[] timeIntervalScores, int [] aimTestScores, int[] clickSpeedScores) {
 		User user = userRepository.findById(id)
 			.orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, 
 			"User with id [" + id + "] not found"));
@@ -197,6 +197,7 @@ public class UserService {
 		boolean typingHighScoreUpdated = false;
 		boolean timeIntervalHighScoreUpdated = false;
 		boolean aimTestHighScoreUpdated = false;
+		boolean clickSpeedHighScoreUpdated = false;
 		// Update reaction time high score (lower is better, so check minimum)
 		if (reactionScores != null && reactionScores.length > 0) {
 			int minReactionScore = Integer.MAX_VALUE;
@@ -257,11 +258,25 @@ public class UserService {
 			}
 		}
 
+		// Update click speed high score (higher is better, so check maximum)
+		if (clickSpeedScores != null && clickSpeedScores.length > 0) {
+			int maxClickSpeedScore = 0;
+			for (int score : clickSpeedScores) {
+				if (score > maxClickSpeedScore) {
+					maxClickSpeedScore = score;
+				}
+			}
+			if (user.getClickSpeedHighScore() == null || maxClickSpeedScore > user.getClickSpeedHighScore()) {
+				user.setClickSpeedHighScore(maxClickSpeedScore);
+				clickSpeedHighScoreUpdated = true;
+			}
+		}
+
 		userRepository.save(user);
 		userRepository.flush();
 
 		return new HighScoresResponseDTO(reactionHighScoreUpdated, typingHighScoreUpdated,
-				timeIntervalHighScoreUpdated, aimTestHighScoreUpdated);
+				timeIntervalHighScoreUpdated, aimTestHighScoreUpdated, clickSpeedHighScoreUpdated);
 	}
 
 	// for leaderboard
