@@ -278,11 +278,13 @@ public class UserService {
 		List<User> topTenReactionRaw;
 		List<User> topTenTypingRaw;
 		List<User> topTenIntervalRaw;
+		List<User> topTenAimTestRaw;
 
 		if (!friendsOnly) {
 			topTenReactionRaw = userRepository.findTopReactionTimeScores(PageRequest.of(0, 10));
 			topTenTypingRaw = userRepository.findTopTypingSpeedScores(PageRequest.of(0, 10));
 			topTenIntervalRaw = userRepository.findTopTimeIntervalScores(PageRequest.of(0, 10));
+			topTenAimTestRaw = userRepository.findTopAimTestScores(PageRequest.of(0, 10));
 		} else {
 			if (id == null) {
 				throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Missing user id for friends-only scoreboard");
@@ -290,6 +292,7 @@ public class UserService {
 			topTenReactionRaw = userRepository.findFriendsTopReactionTimeScores(id, PageRequest.of(0, 10));
 			topTenTypingRaw = userRepository.findFriendsTopTypingSpeedScores(id, PageRequest.of(0, 10));
 			topTenIntervalRaw = userRepository.findFriendsTopTimeIntervalScores(id, PageRequest.of(0, 10));
+			topTenAimTestRaw = userRepository.findFriendsTopAimTestScores(id, PageRequest.of(0, 10));
 		}
 
 		List<ScoreboardEntryDTO> topTenReactionConverted = new ArrayList<>();
@@ -313,11 +316,19 @@ public class UserService {
 			topTenIntervalConverted.add(convertedEntry);
 		}
 
+		List<ScoreboardEntryDTO> topTenAimTestConverted = new ArrayList<>();
+
+		for (int index=0; index < topTenAimTestRaw.size(); index++) {
+			ScoreboardEntryDTO convertedEntry = DTOMapper.INSTANCE.convertEntityToAimTestScoreboardEntryDTO(topTenAimTestRaw.get(index));
+			topTenAimTestConverted.add(convertedEntry);
+		}
+
 		ScoreboardResponseDTO response = new ScoreboardResponseDTO();
 		response.setScoreboards(Map.of(
     	"reactionTime", topTenReactionConverted,
     	"typingSpeed", topTenTypingConverted,
-		"timeInterval", topTenIntervalConverted
+		"timeInterval", topTenIntervalConverted,
+		"aimTest", topTenAimTestConverted
 		));
 		return response;
 	}

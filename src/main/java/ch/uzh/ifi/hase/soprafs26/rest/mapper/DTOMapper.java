@@ -88,4 +88,9 @@ public interface DTOMapper {
 	@Mapping(source = "username", target = "username")
 	@Mapping(source = "timeIntervalHighScore", target = "score")
 	ScoreboardEntryDTO convertEntityToIntervalScoreboardEntryDTO(User user);
+
+	//convert User to ScoreboardEntry for Aim Test Leaderboard Records
+	@Mapping(source = "username", target = "username")
+	@Mapping(source = "aimTestHighScore", target = "score")
+	ScoreboardEntryDTO convertEntityToAimTestScoreboardEntryDTO(User user);
 	}
