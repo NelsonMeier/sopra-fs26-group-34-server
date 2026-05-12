@@ -26,14 +26,26 @@ public class GameController {
         try {
             // Disable SSL certificate verification (for quotable.io)
             disableSSLVerification();
-            
+
             String url = "https://api.quotable.io/random?minLength=100&maxLength=300";
-            Map<String, Object> response = restTemplate.getForObject(url, Map.class);
+            @SuppressWarnings("unchecked")
+            Map<String, Object> response = new java.util.HashMap<>((Map<String, Object>) restTemplate.getForObject(url, Map.class));
+            response.put("content", replaceSpecialCharacters((String) response.get("content")));
             return ResponseEntity.ok(response);
         } catch (Exception e) {
             logger.error("Error fetching quote from API", e);
             return ResponseEntity.status(500).body("Error fetching quote");
         }
+    }
+
+    private String replaceSpecialCharacters(String text) {
+        return text
+            .replace('—', '-')   // em dash -> hyphen
+            .replace('–', '-')   // en dash -> hyphen
+            .replace('‘', '\'')  // left single curly quote -> apostrophe
+            .replace('’', '\'')  // right single curly quote -> apostrophe
+            .replace('“', '"')   // left double curly quote -> double quote
+            .replace('”', '"');  // right double curly quote -> double quote
     }
 
     private void disableSSLVerification() {
