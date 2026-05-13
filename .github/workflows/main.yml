@@ -25,11 +25,6 @@ jobs:
 
       - name: Make gradlew executable
         run: chmod +x gradlew
-
-      - name: List files for debug
-        run: |
-          pwd
-          ls -alR | head -100
       
       - name: Test and analyze
         run: ./gradlew test jacocoTestReport sonar
