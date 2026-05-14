@@ -19,8 +19,9 @@ public class Room {
     private String selectedGame;
     private int    rounds;
 
-    private final Set<String> invitedPlayers = new HashSet<>(); //so no duplicates are allowed
-    private final Set<String> joinedPlayers  = new HashSet<>(); //so no duplicates are allowed
+    private final Set<String> invitedPlayers     = new HashSet<>(); //so no duplicates are allowed
+    private final Set<String> joinedPlayers      = new HashSet<>(); //so no duplicates are allowed
+    private final Set<String> disconnectedPlayers = new HashSet<>();
     private boolean gameStarted = false;
 
     private Map<String, Map<String, Integer>> roundScores = new ConcurrentHashMap<>();
@@ -101,12 +102,21 @@ public class Room {
         if (invitedPlayers.contains(username)) joinedPlayers.add(username);
     }
 
-    public int expectedPlayerCount() { return joinedPlayers.size(); }
+    public void markDisconnected(String username) { disconnectedPlayers.add(username); }
+    public boolean isDisconnected(String username) { return disconnectedPlayers.contains(username); }
+    public Set<String> getDisconnectedPlayers() { return disconnectedPlayers; }
+
+    public int expectedPlayerCount() {
+        return (int) joinedPlayers.stream().filter(p -> !disconnectedPlayers.contains(p)).count();
+    }
 
     public boolean submitScore(String round, String username, int score) {
         roundScores.computeIfAbsent(round, k -> new ConcurrentHashMap<>())
                    .put(username, score);
-        return roundScores.get(round).size() >= expectedPlayerCount();
+        long activeSubmitted = roundScores.get(round).entrySet().stream()
+            .filter(e -> !disconnectedPlayers.contains(e.getKey()))
+            .count();
+        return activeSubmitted >= expectedPlayerCount();
     }
 
     public Map<String, Integer> getRoundScores(String round) {

@@ -151,10 +151,11 @@ public class RoomController {
         if (!allDone) return;
 
         Map<String, Object> roundCompleteMsg = new HashMap<>();
-        roundCompleteMsg.put("type",        "ROUND_COMPLETE");
-        roundCompleteMsg.put("round",        round);
-        roundCompleteMsg.put("scores",       room.getRoundScores(round));
-        roundCompleteMsg.put("totalScores",  room.getCumulativeRawScores());
+        roundCompleteMsg.put("type",          "ROUND_COMPLETE");
+        roundCompleteMsg.put("round",          round);
+        roundCompleteMsg.put("scores",         room.getRoundScores(round));
+        roundCompleteMsg.put("totalScores",    room.getCumulativeRawScores());
+        roundCompleteMsg.put("disconnected",   room.getDisconnectedPlayers());
         messagingTemplate.convertAndSend("/topic/room/" + roomId, (Object) roundCompleteMsg);
 
         //GAME_OVER when the last round finishes
@@ -175,6 +176,41 @@ public class RoomController {
             gameOverMsg.put("type",        "GAME_OVER");
             gameOverMsg.put("finalScores", room.getCumulativeRawScores());
             messagingTemplate.convertAndSend("/topic/room/" + roomId, (Object) gameOverMsg);
+        }
+    }
+
+    private int getPenalty(String game) {
+        if (game == null) return 0;
+        return switch (game.toLowerCase()) {
+            case "reaction time", "time interval" -> 99999;
+            default -> 0;
+        };
+    }
+
+    @MessageMapping("/playerLeft")
+    public void playerLeft(@Payload Map<String, String> payload) {
+        String roomId       = payload.get("roomId");
+        String username     = payload.get("username");
+        String currentRound = payload.getOrDefault("round", "1");
+
+        Room room = rooms.get(roomId);
+        if (room == null) return;
+
+        room.markDisconnected(username);
+
+        // only submit penalty for current round if not already submitted
+        if (!room.getRoundScores(currentRound).containsKey(username)) {
+            int penalty = getPenalty(room.getCurrentGame());
+            boolean allDone = room.submitScore(currentRound, username, penalty);
+            if (allDone) {
+                Map<String, Object> msg = new HashMap<>();
+                msg.put("type",        "ROUND_COMPLETE");
+                msg.put("round",        currentRound);
+                msg.put("scores",       room.getRoundScores(currentRound));
+                msg.put("totalScores",  room.getCumulativeRawScores());
+                msg.put("disconnected", room.getDisconnectedPlayers());
+                messagingTemplate.convertAndSend("/topic/room/" + roomId, (Object) msg);
+            }
         }
     }
 
