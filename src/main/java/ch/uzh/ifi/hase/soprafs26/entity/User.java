@@ -58,7 +58,7 @@ public class User implements Serializable { //allows to b able to b conerted to 
 	private Integer aimTestHighScore;
 
 	@Column(nullable = true)
-	private Integer clickSpeedHighScore;
+	private Double clickSpeedHighScore;
 
 	public Long getId() {                 //need these function as the fields are private so not anyone can just modify directly
 		return id;
@@ -141,11 +141,11 @@ public class User implements Serializable { //allows to b able to b conerted to 
 		this.aimTestHighScore = aimTestHighScore;
 	}
 
-	public Integer getClickSpeedHighScore() {
+	public Double getClickSpeedHighScore() {
 		return clickSpeedHighScore;
 	}
 
-	public void setClickSpeedHighScore(Integer clickSpeedHighScore) {
+	public void setClickSpeedHighScore(Double clickSpeedHighScore) {
 		this.clickSpeedHighScore = clickSpeedHighScore;
 	}
 }

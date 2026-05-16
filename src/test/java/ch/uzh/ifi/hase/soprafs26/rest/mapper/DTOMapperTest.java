@@ -178,5 +178,47 @@ public class DTOMapperTest {
 		assertEquals("bUser", dto.getUsername());
 		assertEquals(55, dto.getScore());
 	}
+
+	// convert User to ScoreboardEntityDTO (Time Interval)
+	@Test
+	public void convertUser_toIntervalScoreboardEntryDTO_success() {
+		User user = new User();
+		user.setUsername("cUser");
+		user.setTimeIntervalHighScore(0.42);
+
+		ScoreboardEntryDTO dto =
+			DTOMapper.INSTANCE.convertEntityToIntervalScoreboardEntryDTO(user);
+
+		assertEquals("cUser", dto.getUsername());
+		assertEquals(0.42, dto.getScore());
+	}
+
+	// convert User to ScoreboardEntityDTO (Aim Test)
+	@Test
+	public void convertUser_toAimTestScoreboardEntryDTO_success() {
+		User user = new User();
+		user.setUsername("dUser");
+		user.setAimTestHighScore(77);
+
+		ScoreboardEntryDTO dto =
+			DTOMapper.INSTANCE.convertEntityToAimTestScoreboardEntryDTO(user);
+
+		assertEquals("dUser", dto.getUsername());
+		assertEquals(77, dto.getScore());
+	}
+
+	// convert User to ScoreboardEntityDTO (Click Speed)
+	@Test
+	public void convertUser_toClickSpeedScoreboardEntryDTO_success() {
+		User user = new User();
+		user.setUsername("eUser");
+		user.setClickSpeedHighScore(31.5);
+
+		ScoreboardEntryDTO dto =
+			DTOMapper.INSTANCE.convertEntityToClickSpeedScoreboardEntryDTO(user);
+
+		assertEquals("eUser", dto.getUsername());
+		assertEquals(31.5, dto.getScore());
+	}
 	
 }

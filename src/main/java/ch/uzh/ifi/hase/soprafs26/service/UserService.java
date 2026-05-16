@@ -11,6 +11,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -188,7 +189,7 @@ public class UserService {
 	}
 
 	public HighScoresResponseDTO updateHighScores(Long id, int[] reactionScores, int[] typingScores,
-			double[] timeIntervalScores, int [] aimTestScores, int[] clickSpeedScores) {
+			double[] timeIntervalScores, int [] aimTestScores, double[] clickSpeedScores) {
 		User user = userRepository.findById(id)
 			.orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, 
 			"User with id [" + id + "] not found"));
@@ -260,8 +261,8 @@ public class UserService {
 
 		// Update click speed high score (higher is better, so check maximum)
 		if (clickSpeedScores != null && clickSpeedScores.length > 0) {
-			int maxClickSpeedScore = 0;
-			for (int score : clickSpeedScores) {
+			double maxClickSpeedScore = 0;
+			for (double score : clickSpeedScores) {
 				if (score > maxClickSpeedScore) {
 					maxClickSpeedScore = score;
 				}
@@ -294,12 +295,14 @@ public class UserService {
 		List<User> topTenTypingRaw;
 		List<User> topTenIntervalRaw;
 		List<User> topTenAimTestRaw;
+		List<User> topTenClickSpeedRaw;
 
 		if (!friendsOnly) {
 			topTenReactionRaw = userRepository.findTopReactionTimeScores(PageRequest.of(0, 10));
 			topTenTypingRaw = userRepository.findTopTypingSpeedScores(PageRequest.of(0, 10));
 			topTenIntervalRaw = userRepository.findTopTimeIntervalScores(PageRequest.of(0, 10));
 			topTenAimTestRaw = userRepository.findTopAimTestScores(PageRequest.of(0, 10));
+			topTenClickSpeedRaw = userRepository.findTopClickSpeedScores(PageRequest.of(0, 10));
 		} else {
 			if (id == null) {
 				throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Missing user id for friends-only scoreboard");
@@ -308,6 +311,7 @@ public class UserService {
 			topTenTypingRaw = userRepository.findFriendsTopTypingSpeedScores(id, PageRequest.of(0, 10));
 			topTenIntervalRaw = userRepository.findFriendsTopTimeIntervalScores(id, PageRequest.of(0, 10));
 			topTenAimTestRaw = userRepository.findFriendsTopAimTestScores(id, PageRequest.of(0, 10));
+			topTenClickSpeedRaw = userRepository.findFriendsTopclickSpeedScores(id, PageRequest.of(0, 10));
 		}
 
 		List<ScoreboardEntryDTO> topTenReactionConverted = new ArrayList<>();
@@ -338,12 +342,20 @@ public class UserService {
 			topTenAimTestConverted.add(convertedEntry);
 		}
 
+		List<ScoreboardEntryDTO> topTenClickSpeedConverted = new ArrayList<>();
+
+		for (int index=0; index < topTenClickSpeedRaw.size(); index++) {
+			ScoreboardEntryDTO convertedEntry = DTOMapper.INSTANCE.convertEntityToClickSpeedScoreboardEntryDTO(topTenClickSpeedRaw.get(index));
+			topTenClickSpeedConverted.add(convertedEntry);
+		}
+
 		ScoreboardResponseDTO response = new ScoreboardResponseDTO();
 		response.setScoreboards(Map.of(
     	"reactionTime", topTenReactionConverted,
     	"typingSpeed", topTenTypingConverted,
 		"timeInterval", topTenIntervalConverted,
-		"aimTest", topTenAimTestConverted
+		"aimTest", topTenAimTestConverted,
+		"clickSpeed", topTenClickSpeedConverted
 		));
 		return response;
 	}
