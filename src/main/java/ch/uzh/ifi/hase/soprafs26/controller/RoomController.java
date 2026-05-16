@@ -196,6 +196,14 @@ public class RoomController {
         Room room = rooms.get(roomId);
         if (room == null) return;
 
+        // if admin leaves
+        if (username.equals(room.getAdminUsername())) {
+            messagingTemplate.convertAndSend("/topic/room/" + roomId,
+                    (Object) Map.of("type", "SESSION_ENDED", "reason", "Admin left the game"));
+            rooms.remove(roomId);
+            return;
+        }
+
         room.markDisconnected(username);
 
         // only submit penalty for current round if not already submitted
