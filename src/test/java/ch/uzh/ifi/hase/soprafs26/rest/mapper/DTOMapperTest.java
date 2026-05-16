@@ -212,13 +212,13 @@ public class DTOMapperTest {
 	public void convertUser_toClickSpeedScoreboardEntryDTO_success() {
 		User user = new User();
 		user.setUsername("eUser");
-		user.setClickSpeedHighScore(31);
+		user.setClickSpeedHighScore(31.5);
 
 		ScoreboardEntryDTO dto =
 			DTOMapper.INSTANCE.convertEntityToClickSpeedScoreboardEntryDTO(user);
 
 		assertEquals("eUser", dto.getUsername());
-		assertEquals(31, dto.getScore());
+		assertEquals(31.5, dto.getScore());
 	}
 	
 }

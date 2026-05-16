@@ -6,7 +6,7 @@ public class HighScoresDTO { //data sent when updating high scores
     private int[] typingScores;
     private double[] timeIntervalScores;
     private int[] aimTestScores;
-    private int[] clickSpeedScores;
+    private double[] clickSpeedScores;
 
     public int[] getReactionScores() {
         return reactionScores;
@@ -40,11 +40,11 @@ public class HighScoresDTO { //data sent when updating high scores
         this.aimTestScores = aimTestScores;
     }
 
-    public int[] getClickSpeedScores() {
+    public double[] getClickSpeedScores() {
         return clickSpeedScores;
     }
 
-    public void setClickSpeedScores(int[] clickSpeedScores) {
+    public void setClickSpeedScores(double[] clickSpeedScores) {
         this.clickSpeedScores = clickSpeedScores;
     }
 
