@@ -93,4 +93,9 @@ public interface DTOMapper {
 	@Mapping(source = "username", target = "username")
 	@Mapping(source = "aimTestHighScore", target = "score")
 	ScoreboardEntryDTO convertEntityToAimTestScoreboardEntryDTO(User user);
+
+	//convert User to ScoreboardEntry for Click Speed Leaderboard Records 
+	@Mapping(source = "username", target = "username")
+	@Mapping(source = "clickSpeedHighScore", target = "score")
+	ScoreboardEntryDTO convertEntityToClickSpeedScoreboardEntryDTO(User user);	
 	}

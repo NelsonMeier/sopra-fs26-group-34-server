@@ -29,6 +29,9 @@ public interface UserRepository extends JpaRepository<User, Long> {
 	@Query("SELECT u FROM User u WHERE u.aimTestHighScore IS NOT NULL ORDER BY u.aimTestHighScore DESC")
 	List<User> findTopAimTestScores(Pageable pageable);
 
+	@Query("SELECT u FROM User u WHERE 	u.clickSpeedHighScore IS NOT NULL ORDER BY u.clickSpeedHighScore DESC")
+	List<User> findTopClickSpeedScores(Pageable pageable);
+
 	@Query("SELECT u FROM User u JOIN Friend f ON f.friend = u WHERE (f.user.id = :userId OR u.id = :userId) AND u.reactionHighScore IS NOT NULL ORDER BY u.reactionHighScore ASC")
 	List<User> findFriendsTopReactionTimeScores(@Param("userId") Long userId, Pageable pageable);
 
@@ -40,6 +43,9 @@ public interface UserRepository extends JpaRepository<User, Long> {
 
 	@Query("SELECT u FROM User u JOIN Friend f ON f.friend = u WHERE (f.user.id = :userId OR u.id = :userId) AND u.aimTestHighScore IS NOT NULL ORDER BY u.aimTestHighScore DESC")
 	List<User> findFriendsTopAimTestScores(@Param("userId") Long userId, Pageable pageable);
+
+	@Query("SELECT u FROM User u JOIN Friend f ON f.friend = u WHERE (f.user.id = :userId OR u.id = :userId) AND u.clickSpeedHighScore IS NOT NULL ORDER BY u.clickSpeedHighScore DESC")
+	List<User> findFriendsTopclickSpeedScores(@Param("userId") Long userId, Pageable pageable);
 
 	@Query("SELECT COUNT(u) FROM User u WHERE u.reactionHighScore IS NOT NULL AND u.reactionHighScore < :score")
 	long countBetterReaction(@Param("score") Integer score);
