@@ -49,6 +49,8 @@ public interface DTOMapper {
 	@Mapping(target = "reaction", ignore = true)
 	@Mapping(target = "typing", ignore = true)
 	@Mapping(target = "timeInterval", ignore = true)
+	@Mapping(target = "aimTest", ignore = true)
+	@Mapping(target = "clickSpeed", ignore = true)
 	UserPublicGetDTO convertEntityToUserPublicGetDTO(User user);
 
 	@Mapping(source = "password", target = "password")

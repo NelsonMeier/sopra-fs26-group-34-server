@@ -60,5 +60,5 @@ public interface UserRepository extends JpaRepository<User, Long> {
 	long countBetterAimTest(@Param("score") Integer score);
 
 	@Query("SELECT COUNT(u) FROM User u WHERE u.clickSpeedHighScore IS NOT NULL AND u.clickSpeedHighScore > :score")
-	long countBetterClickSpeed(@Param ("score") Double score)
+	long countBetterClickSpeed(@Param ("score") Double score);
 }
