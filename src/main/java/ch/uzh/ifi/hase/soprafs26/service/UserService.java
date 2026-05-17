@@ -366,6 +366,8 @@ public class UserService {
 		Integer reactionRank = null;
 		Integer typingRank = null;
 		Integer timeIntervalRank = null;
+		Integer aimTestRank = null;
+		Integer clickSpeedRank = null;
 
 		Integer reactionScore = user.getReactionHighScore();
 		if (reactionScore != null && reactionScore >= 0) {
@@ -382,7 +384,17 @@ public class UserService {
 			timeIntervalRank = Math.toIntExact(userRepository.countBetterTimeInterval(timeIntervalScore) + 1);
 		}
 
-		return new Object[] { reactionRank, typingRank, timeIntervalRank };
+		Integer aimTestScore = user.getAimTestHighScore();
+		if ((aimTestScore) != null && aimTestScore >= 0) {
+			aimTestRank = Math.toIntExact(userRepository.countBetterAimTest(aimTestScore) + 1);
+		}
+
+		Double clickSpeedScore = user.getClickSpeedHighScore();
+		if (clickSpeedScore != null && clickSpeedScore >= 0) {
+			clickSpeedRank = Math.toIntExact(userRepository.countBetterClickSpeed(clickSpeedScore) + 1);
+		}
+
+		return new Object[] { reactionRank, typingRank, timeIntervalRank, aimTestRank, clickSpeedRank };
 	}
 
 	// search users by username prefix 
