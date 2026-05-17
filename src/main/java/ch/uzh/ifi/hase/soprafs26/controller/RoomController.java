@@ -186,6 +186,7 @@ public class RoomController {
             default -> 0;
         };
     }
+    
 
     @MessageMapping("/playerLeft")
     public void playerLeft(@Payload Map<String, String> payload) {
