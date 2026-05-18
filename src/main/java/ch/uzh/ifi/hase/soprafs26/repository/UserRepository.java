@@ -32,6 +32,9 @@ public interface UserRepository extends JpaRepository<User, Long> {
 	@Query("SELECT u FROM User u WHERE u.clickSpeedHighScore IS NOT NULL ORDER BY u.clickSpeedHighScore DESC")
 	List<User> findTopClickSpeedScores(Pageable pageable);
 
+	@Query("SELECT u FROM User u WHERE u.quickMathHighScore IS NOT NULL ORDER BY u.quickMathHighScore DESC")
+	List<User> findTopQuickMathScores(Pageable pageable);
+
 	@Query("SELECT u FROM User u WHERE (u.id = :userId OR EXISTS (SELECT 1 FROM Friend f WHERE f.user.id = :userId AND f.friend = u)) AND u.reactionHighScore IS NOT NULL ORDER BY u.reactionHighScore ASC")
 	List<User> findFriendsTopReactionTimeScores(@Param("userId") Long userId, Pageable pageable);
 
@@ -47,6 +50,9 @@ public interface UserRepository extends JpaRepository<User, Long> {
 	@Query("SELECT u FROM User u WHERE (u.id = :userId OR EXISTS (SELECT 1 FROM Friend f WHERE f.user.id = :userId AND f.friend = u)) AND u.clickSpeedHighScore IS NOT NULL ORDER BY u.clickSpeedHighScore DESC")
 	List<User> findFriendsTopclickSpeedScores(@Param("userId") Long userId, Pageable pageable);
 
+	@Query("SELECT u FROM User u WHERE (u.id = :userId OR EXISTS (SELECT 1 FROM Friend f WHERE f.user.id = :userId AND f.friend = u)) AND u.quickMathHighScore IS NOT NULL ORDER BY u.quickMathHighScore DESC")
+	List<User> findFriendsTopQuickMathScores(@Param("userId") Long userId, Pageable pageable);
+
 	@Query("SELECT COUNT(u) FROM User u WHERE u.reactionHighScore IS NOT NULL AND u.reactionHighScore < :score")
 	long countBetterReaction(@Param("score") Integer score);
 
@@ -61,4 +67,7 @@ public interface UserRepository extends JpaRepository<User, Long> {
 
 	@Query("SELECT COUNT(u) FROM User u WHERE u.clickSpeedHighScore IS NOT NULL AND u.clickSpeedHighScore > :score")
 	long countBetterClickSpeed(@Param ("score") Double score);
+
+	@Query("SELECT COUNT(u) FROM User u WHERE u.quickMathHighScore IS NOT NULL AND u.quickMathHighScore > :score")
+	long countBetterQuickMath(@Param("score") Double score);
 }

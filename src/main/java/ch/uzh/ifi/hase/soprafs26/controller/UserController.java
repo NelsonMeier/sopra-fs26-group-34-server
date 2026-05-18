@@ -171,7 +171,7 @@ public class UserController {
 		String token = authHeader.replace("Bearer ", "");
 		userService.checkAuthentication(token);
 		return userService.updateHighScores(id, highScoresDTO.getReactionScores(), highScoresDTO.getTypingScores(),
-				highScoresDTO.getTimeIntervalScores(), highScoresDTO.getAimTestScores(), highScoresDTO.getClickSpeedScores());
+				highScoresDTO.getTimeIntervalScores(), highScoresDTO.getAimTestScores(), highScoresDTO.getClickSpeedScores(), highScoresDTO.getQuickMathScores());
 	}
 
 	@GetMapping("/scoreboard")

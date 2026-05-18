@@ -318,8 +318,8 @@ public class UserControllerTest {
         dto.setAimTestScores(new int[]{5, 8});
 
         given(userService.checkAuthentication("testToken")).willReturn(true);
-        given(userService.updateHighScores(Mockito.eq(1L), Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any()))
-                .willReturn(new HighScoresResponseDTO(true, true, true, true, true));
+        given(userService.updateHighScores(Mockito.eq(1L), Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any()))
+                .willReturn(new HighScoresResponseDTO(true, true, true, true, true, true));
 
         mockMvc.perform(put("/users/1/highscores")
                 .contentType(MediaType.APPLICATION_JSON)

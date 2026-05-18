@@ -185,11 +185,11 @@ public class UserService {
 	}
 
 	public HighScoresResponseDTO updateHighScores(Long id, int[] reactionScores, int[] typingScores) {
-		return updateHighScores(id, reactionScores, typingScores, null, null, null);
+		return updateHighScores(id, reactionScores, typingScores, null, null, null, null);
 	}
 
 	public HighScoresResponseDTO updateHighScores(Long id, int[] reactionScores, int[] typingScores,
-			double[] timeIntervalScores, int [] aimTestScores, double[] clickSpeedScores) {
+			double[] timeIntervalScores, int [] aimTestScores, double[] clickSpeedScores, double[] quickMathScores) {
 		User user = userRepository.findById(id)
 			.orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, 
 			"User with id [" + id + "] not found"));
@@ -199,6 +199,7 @@ public class UserService {
 		boolean timeIntervalHighScoreUpdated = false;
 		boolean aimTestHighScoreUpdated = false;
 		boolean clickSpeedHighScoreUpdated = false;
+		boolean quickMathHighScoreUpdated = false;
 		// Update reaction time high score (lower is better, so check minimum)
 		if (reactionScores != null && reactionScores.length > 0) {
 			int minReactionScore = Integer.MAX_VALUE;
@@ -273,11 +274,25 @@ public class UserService {
 			}
 		}
 
+		// Update quick math high score (higher is better, so check maximum)
+		if (quickMathScores != null && quickMathScores.length > 0) {
+			double maxQuickMathScore = 0;
+			for (double score : quickMathScores) {
+				if (score > maxQuickMathScore) {
+					maxQuickMathScore = score;
+				}
+			}
+			if (user.getQuickMathHighScore() == null || maxQuickMathScore > user.getQuickMathHighScore()) {
+				user.setQuickMathHighScore(maxQuickMathScore);
+				quickMathHighScoreUpdated = true;
+			}
+		}
+
 		userRepository.save(user);
 		userRepository.flush();
 
 		return new HighScoresResponseDTO(reactionHighScoreUpdated, typingHighScoreUpdated,
-				timeIntervalHighScoreUpdated, aimTestHighScoreUpdated, clickSpeedHighScoreUpdated);
+				timeIntervalHighScoreUpdated, aimTestHighScoreUpdated, clickSpeedHighScoreUpdated, quickMathHighScoreUpdated);
 	}
 
 	// for leaderboard
@@ -296,13 +311,14 @@ public class UserService {
 		List<User> topTenIntervalRaw;
 		List<User> topTenAimTestRaw;
 		List<User> topTenClickSpeedRaw;
-
+		List<User> topTenQuickMathRaw;
 		if (!friendsOnly) {
 			topTenReactionRaw = userRepository.findTopReactionTimeScores(PageRequest.of(0, 10));
 			topTenTypingRaw = userRepository.findTopTypingSpeedScores(PageRequest.of(0, 10));
 			topTenIntervalRaw = userRepository.findTopTimeIntervalScores(PageRequest.of(0, 10));
 			topTenAimTestRaw = userRepository.findTopAimTestScores(PageRequest.of(0, 10));
 			topTenClickSpeedRaw = userRepository.findTopClickSpeedScores(PageRequest.of(0, 10));
+			topTenQuickMathRaw = userRepository.findTopQuickMathScores(PageRequest.of(0, 10));
 		} else {
 			if (id == null) {
 				throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Missing user id for friends-only scoreboard");
@@ -312,6 +328,7 @@ public class UserService {
 			topTenIntervalRaw = userRepository.findFriendsTopTimeIntervalScores(id, PageRequest.of(0, 10));
 			topTenAimTestRaw = userRepository.findFriendsTopAimTestScores(id, PageRequest.of(0, 10));
 			topTenClickSpeedRaw = userRepository.findFriendsTopclickSpeedScores(id, PageRequest.of(0, 10));
+			topTenQuickMathRaw = userRepository.findFriendsTopQuickMathScores(id, PageRequest.of(0, 10));
 		}
 
 		List<ScoreboardEntryDTO> topTenReactionConverted = new ArrayList<>();
