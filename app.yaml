@@ -18,4 +18,8 @@ readiness_check:
 network:
   session_affinity: true
 
+resources:
+  cpu: 1
+  memory_gb: 6
+
 
