@@ -29,7 +29,7 @@ public interface UserRepository extends JpaRepository<User, Long> {
 	@Query("SELECT u FROM User u WHERE u.aimTestHighScore IS NOT NULL ORDER BY u.aimTestHighScore DESC")
 	List<User> findTopAimTestScores(Pageable pageable);
 
-	@Query("SELECT u FROM User u WHERE 	u.clickSpeedHighScore IS NOT NULL ORDER BY u.clickSpeedHighScore DESC")
+	@Query("SELECT u FROM User u WHERE u.clickSpeedHighScore IS NOT NULL ORDER BY u.clickSpeedHighScore DESC")
 	List<User> findTopClickSpeedScores(Pageable pageable);
 
 	@Query("SELECT u FROM User u WHERE (u.id = :userId OR EXISTS (SELECT 1 FROM Friend f WHERE f.user.id = :userId AND f.friend = u)) AND u.reactionHighScore IS NOT NULL ORDER BY u.reactionHighScore ASC")
@@ -55,4 +55,10 @@ public interface UserRepository extends JpaRepository<User, Long> {
 
 	@Query("SELECT COUNT(u) FROM User u WHERE u.timeIntervalHighScore IS NOT NULL AND u.timeIntervalHighScore < :score")
 	long countBetterTimeInterval(@Param("score") Double score);
+
+	@Query("SELECT COUNT(u) FROM User u WHERE u.aimTestHighScore IS NOT NULL AND u.aimTestHighScore > :score")
+	long countBetterAimTest(@Param("score") Integer score);
+
+	@Query("SELECT COUNT(u) FROM User u WHERE u.clickSpeedHighScore IS NOT NULL AND u.clickSpeedHighScore > :score")
+	long countBetterClickSpeed(@Param ("score") Double score);
 }

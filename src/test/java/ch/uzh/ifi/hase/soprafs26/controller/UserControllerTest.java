@@ -147,10 +147,12 @@ public class UserControllerTest {
     user.setPassword("password");
     user.setUsername("testUsername"); //create fake user object
     user.setStatus(UserStatus.ONLINE);
+    user.setAimTestHighScore(42);
+    user.setClickSpeedHighScore(21.5);
 
     given(userService.getUserById(1L)).willReturn(user); //return fake user
     given(userService.checkUserAuthentication(1L, "testToken")).willReturn(true); //return true
-    given(userService.getUserRanks(1L)).willReturn(new Object[] { 1, 2, 3 });
+    given(userService.getUserRanks(1L)).willReturn(new Object[] { 1, 2, 3, 4, 5 });
 
     mockMvc.perform(get("/users/1") //simulate get request
             .contentType(MediaType.APPLICATION_JSON)
@@ -158,7 +160,11 @@ public class UserControllerTest {
             .andExpect(status().isOk())
             .andExpect(jsonPath("$.id").value(1))
             .andExpect(jsonPath("$.username").value("testUsername"))
-            .andExpect(jsonPath("$.status").value("ONLINE"));
+                .andExpect(jsonPath("$.status").value("ONLINE"))
+                .andExpect(jsonPath("$.aimTest.rank").value(4))
+                .andExpect(jsonPath("$.aimTest.score").value(42.0))
+                .andExpect(jsonPath("$.clickSpeed.rank").value(5))
+                .andExpect(jsonPath("$.clickSpeed.score").value(21.5));
     }
 
     // test calling user GET that does not exist

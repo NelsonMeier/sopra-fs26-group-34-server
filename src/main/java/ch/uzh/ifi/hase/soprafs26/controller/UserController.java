@@ -116,10 +116,20 @@ public class UserController {
 	timeInterval.setScore(user.getTimeIntervalHighScore());
 	timeInterval.setRank((Integer) ranks[2]);
 
+	GameRankDTO aimTest = new GameRankDTO();
+	aimTest.setScore(user.getAimTestHighScore() != null ? user.getAimTestHighScore().doubleValue() : null);
+	aimTest.setRank((Integer) ranks[3]);
+
+	GameRankDTO clickSpeed = new GameRankDTO();
+	clickSpeed.setScore(user.getClickSpeedHighScore());
+	clickSpeed.setRank((Integer) ranks[4]);
+
     UserPublicGetDTO dto = DTOMapper.INSTANCE.convertEntityToUserPublicGetDTO(user); //convert
 	dto.setReaction(reaction);
 	dto.setTyping(typing);
 	dto.setTimeInterval(timeInterval);
+	dto.setAimTest(aimTest);
+	dto.setClickSpeed(clickSpeed);
 	return dto;
 }
 
