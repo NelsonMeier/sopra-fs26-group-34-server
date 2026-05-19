@@ -216,6 +216,7 @@ public class RoomController {
         }
     }
 
+    
     @MessageMapping("/nextGame")
     public void nextGame(@Payload Map<String, String> payload) {
         String roomId = payload.get("roomId");
