@@ -150,28 +150,21 @@ public class RoomController {
         boolean allDone = room.submitScore(round, username, score);
         if (!allDone) return;
 
+        boolean isLastRound = Integer.parseInt(round) >= room.getCurrentRounds();
+
         Map<String, Object> roundCompleteMsg = new HashMap<>();
-        roundCompleteMsg.put("type",          "ROUND_COMPLETE");
-        roundCompleteMsg.put("round",          round);
-        roundCompleteMsg.put("scores",         room.getRoundScores(round));
-        roundCompleteMsg.put("totalScores",    room.getCumulativeRawScores());
-        roundCompleteMsg.put("disconnected",   room.getDisconnectedPlayers());
+        roundCompleteMsg.put("type",        "ROUND_COMPLETE");
+        roundCompleteMsg.put("round",        round);
+        roundCompleteMsg.put("scores",       room.getRoundScores(round));
+        roundCompleteMsg.put("totalScores",  room.getCumulativeRawScores());
+        roundCompleteMsg.put("disconnected", room.getDisconnectedPlayers());
+        roundCompleteMsg.put("hasNextGame",  isLastRound && room.hasNextGame());
         messagingTemplate.convertAndSend("/topic/room/" + roomId, (Object) roundCompleteMsg);
 
-        //GAME_OVER when the last round finishes
-        if (Integer.parseInt(round) < room.getCurrentRounds()) {
-            return;
-        }
+        if (!isLastRound) return;
 
-        if (room.hasNextGame()) {
-            room.advanceGame();
-            messagingTemplate.convertAndSend("/topic/room/" + roomId,
-                    (Object) Map.of(
-                        "type",   "NEXT_GAME",
-                        "game",   room.getCurrentGame(),
-                        "rounds", String.valueOf(room.getCurrentRounds())
-                    ));
-        } else {
+        
+        if (!room.hasNextGame()) {
             Map<String, Object> gameOverMsg = new HashMap<>();
             gameOverMsg.put("type",        "GAME_OVER");
             gameOverMsg.put("finalScores", room.getCumulativeRawScores());
@@ -221,6 +214,21 @@ public class RoomController {
                 messagingTemplate.convertAndSend("/topic/room/" + roomId, (Object) msg);
             }
         }
+    }
+
+    
+    @MessageMapping("/nextGame")
+    public void nextGame(@Payload Map<String, String> payload) {
+        String roomId = payload.get("roomId");
+        Room   room   = rooms.get(roomId);
+        if (room == null || !room.hasNextGame()) return;
+        room.advanceGame();
+        messagingTemplate.convertAndSend("/topic/room/" + roomId,
+                (Object) Map.of(
+                    "type",   "NEXT_GAME",
+                    "game",   room.getCurrentGame(),
+                    "rounds", String.valueOf(room.getCurrentRounds())
+                ));
     }
 
     @MessageMapping("/nextRound")
