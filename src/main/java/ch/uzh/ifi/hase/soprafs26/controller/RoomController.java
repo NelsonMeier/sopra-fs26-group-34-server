@@ -198,6 +198,16 @@ public class RoomController {
             return;
         }
 
+
+        if (!room.isGameStarted()) {
+            room.leavePlayer(username);
+            messagingTemplate.convertAndSend("/topic/room/" + roomId,
+                    (Object) Map.of("type", "ROOM_STATE", "players", room.getJoinedPlayers()));
+            return;
+        }
+
+
+        if (!room.getJoinedPlayers().contains(username)) return; 
         room.markDisconnected(username);
 
         // only submit penalty for current round if not already submitted

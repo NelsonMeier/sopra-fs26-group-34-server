@@ -101,6 +101,9 @@ public class Room {
     public void joinPlayer(String username) {
         if (invitedPlayers.contains(username)) joinedPlayers.add(username);
     }
+    public void leavePlayer(String username) {
+        joinedPlayers.remove(username);
+    }
 
     public void markDisconnected(String username) { disconnectedPlayers.add(username); }
     public boolean isDisconnected(String username) { return disconnectedPlayers.contains(username); }
