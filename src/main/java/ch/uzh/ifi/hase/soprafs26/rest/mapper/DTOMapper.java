@@ -51,6 +51,7 @@ public interface DTOMapper {
 	@Mapping(target = "timeInterval", ignore = true)
 	@Mapping(target = "aimTest", ignore = true)
 	@Mapping(target = "clickSpeed", ignore = true)
+	@Mapping(target = "quickMath", ignore = true)
 	UserPublicGetDTO convertEntityToUserPublicGetDTO(User user);
 
 	@Mapping(source = "password", target = "password")

@@ -18,6 +18,7 @@ public class UserPublicGetDTO { // data sent back when viewing user profile
 	private GameRankDTO timeInterval;
 	private GameRankDTO aimTest;
 	private GameRankDTO clickSpeed;
+	private GameRankDTO quickMath;
 
     public Long getId() {
 		return id;
@@ -114,6 +115,14 @@ public class UserPublicGetDTO { // data sent back when viewing user profile
 
 	public void setClickSpeed(GameRankDTO clickSpeed) {
 		this.clickSpeed = clickSpeed;
+	}
+
+	public GameRankDTO getQuickMath() {
+		return quickMath;
+	}
+
+	public void setQuickMath(GameRankDTO quickMath) {
+		this.quickMath = quickMath;
 	}
 	
 }
