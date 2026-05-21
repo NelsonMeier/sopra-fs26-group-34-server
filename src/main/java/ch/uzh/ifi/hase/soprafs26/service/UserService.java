@@ -366,13 +366,21 @@ public class UserService {
 			topTenClickSpeedConverted.add(convertedEntry);
 		}
 
+		List<ScoreboardEntryDTO> topTenQuickMathConverted = new ArrayList<>();
+
+		for (int index=0; index < topTenQuickMathRaw.size(); index++) {
+			ScoreboardEntryDTO convertedEntry = DTOMapper.INSTANCE.convertEntityToQuickMathScoreboardEntryDTO(topTenQuickMathRaw.get(index));
+			topTenQuickMathConverted.add(convertedEntry);
+		}
+
 		ScoreboardResponseDTO response = new ScoreboardResponseDTO();
 		response.setScoreboards(Map.of(
     	"reactionTime", topTenReactionConverted,
     	"typingSpeed", topTenTypingConverted,
 		"timeInterval", topTenIntervalConverted,
 		"aimTest", topTenAimTestConverted,
-		"clickSpeed", topTenClickSpeedConverted
+		"clickSpeed", topTenClickSpeedConverted,
+		"quickMath", topTenQuickMathConverted
 		));
 		return response;
 	}
@@ -385,6 +393,7 @@ public class UserService {
 		Integer timeIntervalRank = null;
 		Integer aimTestRank = null;
 		Integer clickSpeedRank = null;
+		Integer quickMathRank = null;
 
 		Integer reactionScore = user.getReactionHighScore();
 		if (reactionScore != null && reactionScore >= 0) {
@@ -411,7 +420,12 @@ public class UserService {
 			clickSpeedRank = Math.toIntExact(userRepository.countBetterClickSpeed(clickSpeedScore) + 1);
 		}
 
-		return new Object[] { reactionRank, typingRank, timeIntervalRank, aimTestRank, clickSpeedRank };
+		Double quickMathScore = user.getQuickMathHighScore();
+		if (quickMathScore != null && quickMathScore >= 0) {
+			quickMathRank = Math.toIntExact(userRepository.countBetterQuickMath(quickMathScore) + 1);
+		}
+
+		return new Object[] { reactionRank, typingRank, timeIntervalRank, aimTestRank, clickSpeedRank, quickMathRank };
 	}
 
 	// search users by username prefix 
