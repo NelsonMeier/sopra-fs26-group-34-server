@@ -56,6 +56,13 @@ public class FriendService {
         // check if friend request already exists
         FriendRequest existingRequest = friendRequestRepository.findBySenderIdAndReceiverId(senderId, receiverId);
         if (existingRequest != null) {
+            if (existingRequest.getStatus() == FriendRequestStatus.DECLINED){
+                existingRequest.setStatus(FriendRequestStatus.PENDING);
+                existingRequest.setCreatedAt(LocalDateTime.now());
+                existingRequest = friendRequestRepository.save(existingRequest);
+                friendRequestRepository.flush();
+                return existingRequest;
+            }
             throw new ResponseStatusException(HttpStatus.CONFLICT, "Friend request already sent");
         }
 
@@ -147,6 +154,11 @@ public class FriendService {
         friendRequestRepository.flush();
 
         log.debug("Friendship between user {} and user {} deleted", userId, friendId);
+
+    }
+    public List<FriendRequest> getSentFriendRequests(Long userId) {
+        List<FriendRequest> sentRequests = friendRequestRepository.findBySenderId(userId);
+        return sentRequests;
     }
 
     

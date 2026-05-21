@@ -89,6 +89,17 @@ public class FriendController {
         }
         return friendRequestDTOs;
     }
+    @GetMapping("/users/{userId}/friends/requests/sent")
+    @ResponseStatus(HttpStatus.OK)
+    @ResponseBody
+    public List<FriendRequestDTO> getSentFriendRequests(@PathVariable Long userId){
+        List<FriendRequest> sentRequests = friendService.getSentFriendRequests(userId);
+        List<FriendRequestDTO> sentRequestDTOs = new ArrayList<>();
+        for (FriendRequest friendRequest : sentRequests) {
+            sentRequestDTOs.add(DTOMapper.INSTANCE.convertEntityToFriendRequestDTO(friendRequest));
+        }
+        return sentRequestDTOs;
+    }
 
 }
 
