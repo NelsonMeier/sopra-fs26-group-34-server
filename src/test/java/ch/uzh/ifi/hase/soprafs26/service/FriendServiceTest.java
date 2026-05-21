@@ -219,6 +219,52 @@ public class FriendServiceTest {
                 () -> friendService.declineFriendRequest(1L));
     }
 
+    // tests that a declined request is reset to PENDING when the sender tries again
+    @Test
+    public void sendFriendRequest_declinedRequest_resendSuccess() {
+        FriendRequest declinedRequest = createFriendRequest(1L, FriendRequestStatus.DECLINED);
+
+        Mockito.when(userRepository.findById(1L))
+                .thenReturn(java.util.Optional.of(sender));
+        Mockito.when(userRepository.findById(2L))
+                .thenReturn(java.util.Optional.of(receiver));
+        Mockito.when(friendRequestRepository.findBySenderIdAndReceiverId(1L, 2L))
+                .thenReturn(declinedRequest);
+
+        FriendRequest result = friendService.sendFriendRequest(1L, 2L);
+
+        assertEquals(FriendRequestStatus.PENDING, result.getStatus());
+        assertNotNull(result.getCreatedAt());
+        Mockito.verify(friendRequestRepository).save(declinedRequest);
+        Mockito.verify(friendRequestRepository).flush();
+    }
+
+    // tests retrieval of all friend requests sent by a user
+    @Test
+    public void getSentFriendRequests_validUser_success() {
+        FriendRequest sentRequest = createFriendRequest(1L, FriendRequestStatus.PENDING);
+
+        Mockito.when(friendRequestRepository.findBySenderId(1L))
+                .thenReturn(Collections.singletonList(sentRequest));
+
+        List<FriendRequest> result = friendService.getSentFriendRequests(1L);
+
+        assertEquals(1, result.size());
+        assertEquals(sender.getId(), result.get(0).getSender().getId());
+        Mockito.verify(friendRequestRepository).findBySenderId(1L);
+    }
+
+    @Test
+    public void getSentFriendRequests_noRequests_returnsEmpty() {
+        Mockito.when(friendRequestRepository.findBySenderId(1L))
+                .thenReturn(Collections.emptyList());
+
+        List<FriendRequest> result = friendService.getSentFriendRequests(1L);
+
+        assertEquals(0, result.size());
+        Mockito.verify(friendRequestRepository).findBySenderId(1L);
+    }
+
     // tests retrieval of pending friend requests for a user
     @Test
     public void getFriendRequests_validUser_success() {

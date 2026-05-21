@@ -209,6 +209,47 @@ public class FriendControllerTest {
                 .andExpect(jsonPath("$", hasSize(0)));
     }
 
+    // getSentFriendRequests function from FriendController
+    @Test
+    public void getSentFriendRequests_validUser_returns200() throws Exception {
+        FriendRequest friendRequest = createFriendRequest(1L, FriendRequestStatus.PENDING);
+
+        given(friendService.getSentFriendRequests(1L)).willReturn(Collections.singletonList(friendRequest));
+
+        mockMvc.perform(get("/users/1/friends/requests/sent")
+                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$", hasSize(1)))
+                .andExpect(jsonPath("$[0].id", is(friendRequest.getId().intValue())))
+                .andExpect(jsonPath("$[0].sender.username", is(friendRequest.getSender().getUsername())))
+                .andExpect(jsonPath("$[0].receiver.username", is(friendRequest.getReceiver().getUsername())))
+                .andExpect(jsonPath("$[0].status", is(FriendRequestStatus.PENDING.toString())));
+    }
+
+    @Test
+    public void getSentFriendRequests_noRequests_returns200WithEmptyList() throws Exception {
+        given(friendService.getSentFriendRequests(1L)).willReturn(Collections.emptyList());
+
+        mockMvc.perform(get("/users/1/friends/requests/sent")
+                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$", hasSize(0)));
+    }
+
+    // tests that resending after a decline returns 201
+    @Test
+    public void sendFriendRequest_afterDecline_returns201() throws Exception {
+        FriendRequest friendRequest = createFriendRequest(1L, FriendRequestStatus.PENDING);
+
+        given(friendService.sendFriendRequest(1L, 2L)).willReturn(friendRequest);
+
+        mockMvc.perform(post("/users/1/friends/requests")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(asJsonString(2L)))
+                .andExpect(status().isCreated())
+                .andExpect(jsonPath("$.status", is(FriendRequestStatus.PENDING.toString())));
+    }
+
     // create fake friend and friend request
     private User createUser(Long id, String username) {
         User user = new User();
