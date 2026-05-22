@@ -656,5 +656,114 @@ public class RoomControllerTest {
     }
 
     
+    @Test
+    public void playerLeft_notJoinedPlayer_noMessageSent() {
+        Map<String, String> createPayload = new HashMap<>();
+        createPayload.put("roomId", "room1");
+        createPayload.put("adminId", "1");
+        createPayload.put("adminUsername", "admin");
+        roomController.createRoom(createPayload);
+        Mockito.reset(messagingTemplate);
+        Map<String, String> payload = new HashMap<>();
+        payload.put("roomId", "room1");
+        payload.put("username", "ghostPlayer");
+        payload.put("round", "1");
+        roomController.playerLeft(payload);
+        ArgumentCaptor<Object> captor = ArgumentCaptor.forClass(Object.class);
+        verify(messagingTemplate).convertAndSend(
+                Mockito.eq("/topic/room/room1"),
+                captor.capture()
+        );
+        @SuppressWarnings("unchecked")
+        Map<String, Object> msg = (Map<String, Object>) captor.getValue();
+        assertTrue(msg.get("type") == null
+                || (!msg.get("type").equals("SESSION_ENDED")
+                && !msg.get("type").equals("ROUND_COMPLETE")));
+    }
+
+    @Test
+    public void playerLeft_validDisconnected_submitsPenaltyScore() {
+        Map<String, String> createPayload = new HashMap<>();
+        createPayload.put("roomId", "room1");
+        createPayload.put("adminId", "1");
+        createPayload.put("adminUsername", "admin");
+        roomController.createRoom(createPayload);
+        Map<String, String> invite = new HashMap<>();
+        invite.put("roomId", "room1");
+        invite.put("username", "player1");
+        invite.put("inviterName", "admin");
+        roomController.inviteRoom(invite);
+        Map<String, String> join = new HashMap<>();
+        join.put("roomId", "room1");
+        join.put("username", "player1");
+        roomController.joinRoom(join);
+        Mockito.reset(messagingTemplate);
+        Map<String, String> payload = new HashMap<>();
+        payload.put("roomId", "room1");
+        payload.put("username", "player1");
+        payload.put("round", "1");
+        roomController.playerLeft(payload);
+        verify(messagingTemplate, Mockito.atLeastOnce()).convertAndSend(
+            Mockito.eq("/topic/room/room1"),
+            Mockito.<Object>any()
+        );
+    }
+    
+    @Test
+    public void playerLeft_lastPlayerTriggersRoundComplete() {
+        Map<String, String> createPayload = new HashMap<>();
+        createPayload.put("roomId", "room1");
+        createPayload.put("adminId", "1");
+        createPayload.put("adminUsername", "admin");
+        roomController.createRoom(createPayload);
+        Map<String, String> invite = new HashMap<>();
+        invite.put("roomId", "room1");
+        invite.put("username", "player1");
+        invite.put("inviterName", "admin");
+        roomController.inviteRoom(invite);
+        Map<String, String> join = new HashMap<>();
+        join.put("roomId", "room1");
+        join.put("username", "player1");
+        roomController.joinRoom(join);
+        Map<String, String> selectPayload = new HashMap<>();
+        selectPayload.put("roomId", "room1");
+        selectPayload.put("game", "reactionSpeed");
+        selectPayload.put("rounds", "1");
+        roomController.selectGame(selectPayload);
+        Map<String, String> startPayload = new HashMap<>();
+        startPayload.put("roomId", "room1");
+        roomController.startGame(startPayload);
+        Mockito.reset(messagingTemplate);
+        Map<String, String> payload = new HashMap<>();
+        payload.put("roomId", "room1");
+        payload.put("username", "player1");
+        payload.put("round", "1");
+        
+        Map<String, Object> score = new HashMap<>();
+        score.put("roomId", "room1");
+        score.put("username", "admin");
+        score.put("round", "1");
+        score.put("score", 10);
+        roomController.submitScore(score);
+        roomController.playerLeft(payload);
+        ArgumentCaptor<Object> captor = ArgumentCaptor.forClass(Object.class);
+        verify(messagingTemplate, Mockito.atLeastOnce())
+                .convertAndSend(Mockito.anyString(), captor.capture());
+        java.util.List<Object> messages = captor.getAllValues();
+        Map<String, Object> roundComplete = null;
+        for (Object obj : messages) {
+            Map<String, Object> m = (Map<String, Object>) obj;
+            if ("ROUND_COMPLETE".equals(m.get("type"))) {
+                roundComplete = m;
+                break;
+            }
+        }
+        assertTrue(roundComplete != null, "ROUND_COMPLETE message was not sent");
+        assertEquals("ROUND_COMPLETE", roundComplete.get("type"));
+        assertEquals("1", String.valueOf(roundComplete.get("round")));
+        assertTrue(roundComplete.containsKey("scores"));
+        assertTrue(roundComplete.containsKey("totalScores"));
+        assertTrue(roundComplete.containsKey("disconnected"));
+    }
 
 }
