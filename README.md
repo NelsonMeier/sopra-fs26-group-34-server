@@ -97,7 +97,7 @@ The application uses a persistent database. By default, it is configured to use 
 
 ---
 
-## Authors and Acknowledgment
+## Authors & Acknowledgment
 
 [@zar4hmed](https://github.com/zar4hmed) · [@anitbaum](https://github.com/anitbaum) · [@Lukas81S](https://github.com/Lukas81S) · [@NelsonMeier](https://github.com/NelsonMeier) · [@jonasdkf](https://github.com/jonasdkf)
  
