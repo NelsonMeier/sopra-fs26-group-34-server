@@ -14,6 +14,7 @@ import ch.uzh.ifi.hase.soprafs26.rest.dto.FriendRequestDTO;
 import ch.uzh.ifi.hase.soprafs26.rest.dto.ScoreboardEntryDTO;
 import ch.uzh.ifi.hase.soprafs26.rest.dto.UserGetDTO;
 import ch.uzh.ifi.hase.soprafs26.rest.dto.UserPostDTO;
+import ch.uzh.ifi.hase.soprafs26.rest.dto.UserPublicGetDTO;
 import ch.uzh.ifi.hase.soprafs26.rest.dto.UserPutDTO;
 
 
@@ -72,6 +73,35 @@ public class DTOMapperTest {
 		UserGetDTO dto = DTOMapper.INSTANCE.convertEntityToUserGetDTO(user);
 
 		assertEquals("testUser", dto.getUsername());
+	}
+
+	// convert User to UserPublicGetDTO
+	@Test
+	public void testGetUser_fromUser_toUserPublicGetDTO_success() {
+		User user = new User();
+		user.setId(1L);
+		user.setUsername("publicUser");
+		user.setStatus(UserStatus.ONLINE);
+		user.setCreationDate(java.time.LocalDate.now());
+		user.setReactionHighScore(120);
+		user.setTypingHighScore(55);
+		user.setTimeIntervalHighScore(0.42);
+
+		UserPublicGetDTO dto = DTOMapper.INSTANCE.convertEntityToUserPublicGetDTO(user);
+
+		assertEquals(user.getId(), dto.getId());
+		assertEquals(user.getUsername(), dto.getUsername());
+		assertEquals(user.getStatus(), dto.getStatus());
+		assertEquals(user.getCreationDate(), dto.getCreationDate());
+		assertEquals(user.getReactionHighScore(), dto.getReactionHighScore());
+		assertEquals(user.getTypingHighScore(), dto.getTypingHighScore());
+		assertEquals(0, dto.getTimeIntervalHighScore());
+		assertNull(dto.getReaction());
+		assertNull(dto.getTyping());
+		assertNull(dto.getTimeInterval());
+		assertNull(dto.getAimTest());
+		assertNull(dto.getClickSpeed());
+		assertNull(dto.getQuickMath());
 	}
 
 	// convert UserPostDTO to entity
@@ -219,6 +249,20 @@ public class DTOMapperTest {
 
 		assertEquals("eUser", dto.getUsername());
 		assertEquals(31.5, dto.getScore());
+	}
+
+	// convert User to ScoreboardEntityDTO (Quick Math)
+	@Test
+	public void convertUser_toQuickMathScoreboardEntryDTO_success() {
+		User user = new User();
+		user.setUsername("fUser");
+		user.setQuickMathHighScore(88.5);
+
+		ScoreboardEntryDTO dto =
+			DTOMapper.INSTANCE.convertEntityToQuickMathScoreboardEntryDTO(user);
+
+		assertEquals("fUser", dto.getUsername());
+		assertEquals(88.5, dto.getScore());
 	}
 	
 }
