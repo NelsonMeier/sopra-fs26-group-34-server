@@ -31,7 +31,7 @@ public class LeaderboardControllerTest {
 
     private final ObjectMapper objectMapper = new ObjectMapper();
 
-    // successful setLeaderboard with validInput
+    // successful setLeaderboard with valid Input
     @Test
     public void setLeaderboard_validInput_callsService() throws Exception {
         Map<String, Integer> data = Map.of(
@@ -74,5 +74,15 @@ public class LeaderboardControllerTest {
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(content().json("{}"));
+    }
+
+     // invalid JSON should return bad request
+    @Test
+    public void setLeaderboard_invalidJson_returns400() throws Exception {
+
+        mockMvc.perform(post("/api/leaderboard/game1")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content("{invalid-json}"))
+                .andExpect(status().isBadRequest());
     }
 }

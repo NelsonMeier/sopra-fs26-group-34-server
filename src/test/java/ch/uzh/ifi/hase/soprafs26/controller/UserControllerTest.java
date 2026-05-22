@@ -282,6 +282,18 @@ public class UserControllerTest {
                 .andExpect(status().isNotFound());
     }
 
+    @Test
+    public void logoutUser_invalidToken_returns401() throws Exception {
+
+        Mockito.doThrow(new ResponseStatusException(HttpStatus.UNAUTHORIZED))
+                .when(userService)
+                .logoutUser(Mockito.any(), Mockito.any());
+
+        mockMvc.perform(post("/logout/1")
+                .header("Authorization", "Bearer badToken"))
+                .andExpect(status().isUnauthorized());
+    }
+
     // searchUsersByUsername from UserController
     @Test
     public void searchUser_validUsername_returns200() throws Exception {
@@ -311,6 +323,15 @@ public class UserControllerTest {
             .andExpect(jsonPath("$", hasSize(0)));
     }
 
+    @Test
+    public void searchUser_emptyPrefix_returnsEmptyList() throws Exception {
+        given(userService.searchUsersByUsernamePrefix(""))
+                .willReturn(Collections.emptyList());
+
+        mockMvc.perform(get("/users/search/"))
+                .andExpect(status().isNotFound());
+    }
+
     // updateHighScores from UserController
     @Test
     public void updateHighScores_validRequest_returns200() throws Exception {
@@ -333,6 +354,48 @@ public class UserControllerTest {
                 .andExpect(jsonPath("$.typingHighScoreUpdated").value(true))
                 .andExpect(jsonPath("$.timeIntervalHighScoreUpdated").value(true))
                 .andExpect(jsonPath("$.aimTestHighScoreUpdated").value(true));
+    }
+
+    @Test
+    public void updateHighScores_invalidToken_returns401() throws Exception {
+        HighScoresDTO dto = new HighScoresDTO();
+
+        given(userService.checkAuthentication("badToken"))
+                .willThrow(new ResponseStatusException(HttpStatus.UNAUTHORIZED));
+
+        mockMvc.perform(put("/users/1/highscores")
+                .contentType(MediaType.APPLICATION_JSON)
+                .header("Authorization", "Bearer badToken")
+                .content(asJsonString(dto)))
+                .andExpect(status().isUnauthorized());
+    }
+
+    @Test
+    public void updateHighScores_partialScores_returns200() throws Exception {
+        HighScoresDTO dto = new HighScoresDTO();
+        dto.setReactionScores(new int[]{100});
+
+        given(userService.checkAuthentication("testToken"))
+                .willReturn(true);
+
+        given(userService.updateHighScores(
+                Mockito.eq(1L),
+                Mockito.any(),
+                Mockito.any(),
+                Mockito.any(),
+                Mockito.any(),
+                Mockito.any(),
+                Mockito.any()))
+                .willReturn(new HighScoresResponseDTO(
+                        true, false, false, false, false, false));
+
+        mockMvc.perform(put("/users/1/highscores")
+                .contentType(MediaType.APPLICATION_JSON)
+                .header("Authorization", "Bearer testToken")
+                .content(asJsonString(dto)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.reactionHighScoreUpdated").value(true))
+                .andExpect(jsonPath("$.typingHighScoreUpdated").value(false));
     }
 
     // getScoreboard from UserController
@@ -377,5 +440,59 @@ public class UserControllerTest {
                 .andExpect(jsonPath("$.scoreboards.reactionTime").exists())
                 .andExpect(jsonPath("$.scoreboards.typingSpeed").exists())
                 .andExpect(jsonPath("$.scoreboards.timeInterval").exists());
+    }
+
+    @Test
+    public void getScoreboard_friendsOnly_invalidToken_returns401() throws Exception {
+
+        given(userService.getUserByToken("badToken"))
+                .willThrow(new ResponseStatusException(HttpStatus.UNAUTHORIZED));
+
+        mockMvc.perform(get("/scoreboard")
+                .queryParam("friendsOnly", "true")
+                .header("Authorization", "Bearer badToken"))
+                .andExpect(status().isUnauthorized());
+    }
+
+    // unauthorized access to /users
+    @Test
+    public void getUsers_invalidToken_returns401() throws Exception {
+        given(userService.checkAuthentication("badToken"))
+                .willThrow(new ResponseStatusException(HttpStatus.UNAUTHORIZED));
+
+        MockHttpServletRequestBuilder getRequest = get("/users")
+                .contentType(MediaType.APPLICATION_JSON)
+                .header("Authorization", "Bearer badToken");
+
+        mockMvc.perform(getRequest)
+                .andExpect(status().isUnauthorized());
+    }
+
+    // unauthorized profile access
+    @Test
+    public void getUserById_wrongUser_returns401() throws Exception {
+        given(userService.checkUserAuthentication(1L, "wrongToken"))
+                .willReturn(false);
+
+        mockMvc.perform(get("/users/1")
+                .contentType(MediaType.APPLICATION_JSON)
+                .header("Authorization", "Bearer wrongToken"))
+                .andExpect(status().isUnauthorized());
+    }
+
+    // no users in database
+    @Test
+    public void givenNoUsers_whenGetUsers_thenReturnEmptyJsonArray() throws Exception {
+
+        given(userService.getUsers()).willReturn(Collections.emptyList());
+        given(userService.checkAuthentication("testToken")).willReturn(true);
+
+        MockHttpServletRequestBuilder getRequest = get("/users")
+                .contentType(MediaType.APPLICATION_JSON)
+                .header("Authorization", "Bearer testToken");
+
+        mockMvc.perform(getRequest)
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$", hasSize(0)));
     }
 }
