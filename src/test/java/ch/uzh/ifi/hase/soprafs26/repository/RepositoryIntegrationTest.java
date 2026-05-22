@@ -4,7 +4,9 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.data.jpa.test.autoconfigure.DataJpaTest;
@@ -431,4 +433,493 @@ public class RepositoryIntegrationTest {
 		assertEquals("friendUser", found.get(0).getUsername());
 	}
 
+	@Test
+	public void findTopTimeIntervalScores_success() {
+		User user1 = new User();
+		user1.setUsername("fastInterval");
+		user1.setPassword("pw");
+		user1.setCreationDate(java.time.LocalDate.now());
+		user1.setStatus(UserStatus.ONLINE);
+		user1.setToken("TI1");
+		user1.setTimeIntervalHighScore(1.5);
+
+		User user2 = new User();
+		user2.setUsername("slowInterval");
+		user2.setPassword("pw");
+		user2.setCreationDate(java.time.LocalDate.now());
+		user2.setStatus(UserStatus.ONLINE);
+		user2.setToken("TI2");
+		user2.setTimeIntervalHighScore(2.0);
+
+		entityManager.persist(user1);
+		entityManager.persist(user2);
+		entityManager.flush();
+
+		List<User> found = userRepository.findTopTimeIntervalScores(PageRequest.of(0, 10));
+
+		assertFalse(found.isEmpty());
+		
+		assertEquals(1.5, found.get(0).getTimeIntervalHighScore());
+	}
+
+	@Test
+	public void findTopTimeIntervalScores_nullScoresExcluded() {
+		// user with no score should not show up
+		User user1 = new User();
+		user1.setUsername("noIntervalScore");
+		user1.setPassword("pw");
+		user1.setCreationDate(java.time.LocalDate.now());
+		user1.setStatus(UserStatus.ONLINE);
+		user1.setToken("TI3");
+
+		User user2 = new User();
+		user2.setUsername("hasIntervalScore");
+		user2.setPassword("pw");
+		user2.setCreationDate(java.time.LocalDate.now());
+		user2.setStatus(UserStatus.ONLINE);
+		user2.setToken("TI4");
+		user2.setTimeIntervalHighScore(3.0);
+
+		entityManager.persist(user1);
+		entityManager.persist(user2);
+		entityManager.flush();
+
+		List<User> found = userRepository.findTopTimeIntervalScores(PageRequest.of(0, 10));
+
+		assertEquals(1, found.size());
+		assertEquals("hasIntervalScore", found.get(0).getUsername());
+	}
+
+	@Test
+	public void findTopAimTestScores_success() {
+		User user1 = new User();
+		user1.setUsername("goodAim");
+		user1.setPassword("pw");
+		user1.setCreationDate(java.time.LocalDate.now());
+		user1.setStatus(UserStatus.ONLINE);
+		user1.setToken("AT1");
+		user1.setAimTestHighScore(95);
+
+		User user2 = new User();
+		user2.setUsername("badAim");
+		user2.setPassword("pw");
+		user2.setCreationDate(java.time.LocalDate.now());
+		user2.setStatus(UserStatus.ONLINE);
+		user2.setToken("AT2");
+		user2.setAimTestHighScore(80);
+
+		entityManager.persist(user1);
+		entityManager.persist(user2);
+		entityManager.flush();
+
+		List<User> found = userRepository.findTopAimTestScores(PageRequest.of(0, 10));
+
+		assertFalse(found.isEmpty());
+		
+		assertEquals(95, found.get(0).getAimTestHighScore());
+	}
+
+	@Test
+	public void findTopClickSpeedScores_success() {
+		User user1 = new User();
+		user1.setUsername("fastClicker");
+		user1.setPassword("pw");
+		user1.setCreationDate(java.time.LocalDate.now());
+		user1.setStatus(UserStatus.ONLINE);
+		user1.setToken("CS1");
+		user1.setClickSpeedHighScore(12.0);
+
+		User user2 = new User();
+		user2.setUsername("slowClicker");
+		user2.setPassword("pw");
+		user2.setCreationDate(java.time.LocalDate.now());
+		user2.setStatus(UserStatus.ONLINE);
+		user2.setToken("CS2");
+		user2.setClickSpeedHighScore(7.5);
+
+		entityManager.persist(user1);
+		entityManager.persist(user2);
+		entityManager.flush();
+
+		List<User> found = userRepository.findTopClickSpeedScores(PageRequest.of(0, 10));
+
+		assertFalse(found.isEmpty());
+		assertEquals(12.0, found.get(0).getClickSpeedHighScore());
+	}
+
+	@Test
+	public void findTopQuickMathScores_success() {
+		User user1 = new User();
+		user1.setUsername("mathGenius");
+		user1.setPassword("pw");
+		user1.setCreationDate(java.time.LocalDate.now());
+		user1.setStatus(UserStatus.ONLINE);
+		user1.setToken("QM1");
+		user1.setQuickMathHighScore(15.5);
+
+		User user2 = new User();
+		user2.setUsername("mathStruggle");
+		user2.setPassword("pw");
+		user2.setCreationDate(java.time.LocalDate.now());
+		user2.setStatus(UserStatus.ONLINE);
+		user2.setToken("QM2");
+		user2.setQuickMathHighScore(8.0);
+
+		entityManager.persist(user1);
+		entityManager.persist(user2);
+		entityManager.flush();
+
+		List<User> found = userRepository.findTopQuickMathScores(PageRequest.of(0, 10));
+
+		assertFalse(found.isEmpty());
+		assertEquals(15.5, found.get(0).getQuickMathHighScore());
+	}
+
+	@Test
+	public void countBetterTimeInterval_success() {
+		User user1 = new User();
+		user1.setUsername("betterInterval");
+		user1.setPassword("pw");
+		user1.setCreationDate(java.time.LocalDate.now());
+		user1.setStatus(UserStatus.ONLINE);
+		user1.setToken("CTI1");
+		user1.setTimeIntervalHighScore(1.0);
+
+		User user2 = new User();
+		user2.setUsername("worseInterval");
+		user2.setPassword("pw");
+		user2.setCreationDate(java.time.LocalDate.now());
+		user2.setStatus(UserStatus.ONLINE);
+		user2.setToken("CTI2");
+		user2.setTimeIntervalHighScore(3.0);
+
+		entityManager.persist(user1);
+		entityManager.persist(user2);
+		entityManager.flush();
+
+		
+		long count = userRepository.countBetterTimeInterval(2.5);
+
+		assertEquals(1, count);
+	}
+
+	@Test
+	public void countBetterAimTest_success() {
+		User user1 = new User();
+		user1.setUsername("betterAim");
+		user1.setPassword("pw");
+		user1.setCreationDate(java.time.LocalDate.now());
+		user1.setStatus(UserStatus.ONLINE);
+		user1.setToken("CAT1");
+		user1.setAimTestHighScore(90);
+
+		User user2 = new User();
+		user2.setUsername("worseAim");
+		user2.setPassword("pw");
+		user2.setCreationDate(java.time.LocalDate.now());
+		user2.setStatus(UserStatus.ONLINE);
+		user2.setToken("CAT2");
+		user2.setAimTestHighScore(70);
+
+		entityManager.persist(user1);
+		entityManager.persist(user2);
+		entityManager.flush();
+
+		
+		long count = userRepository.countBetterAimTest(80);
+
+		assertEquals(1, count);
+	}
+
+	@Test
+	public void countBetterClickSpeed_success() {
+		User user1 = new User();
+		user1.setUsername("betterClick");
+		user1.setPassword("pw");
+		user1.setCreationDate(java.time.LocalDate.now());
+		user1.setStatus(UserStatus.ONLINE);
+		user1.setToken("CCS1");
+		user1.setClickSpeedHighScore(10.0);
+
+		User user2 = new User();
+		user2.setUsername("worseClick");
+		user2.setPassword("pw");
+		user2.setCreationDate(java.time.LocalDate.now());
+		user2.setStatus(UserStatus.ONLINE);
+		user2.setToken("CCS2");
+		user2.setClickSpeedHighScore(5.0);
+
+		entityManager.persist(user1);
+		entityManager.persist(user2);
+		entityManager.flush();
+
+		
+		long count = userRepository.countBetterClickSpeed(7.0);
+
+		assertEquals(1, count);
+	}
+
+	@Test
+	public void countBetterQuickMath_success() {
+		User user1 = new User();
+		user1.setUsername("betterMath");
+		user1.setPassword("pw");
+		user1.setCreationDate(java.time.LocalDate.now());
+		user1.setStatus(UserStatus.ONLINE);
+		user1.setToken("CQM1");
+		user1.setQuickMathHighScore(20.0);
+
+		User user2 = new User();
+		user2.setUsername("worseMath");
+		user2.setPassword("pw");
+		user2.setCreationDate(java.time.LocalDate.now());
+		user2.setStatus(UserStatus.ONLINE);
+		user2.setToken("CQM2");
+		user2.setQuickMathHighScore(5.0);
+
+		entityManager.persist(user1);
+		entityManager.persist(user2);
+		entityManager.flush();
+
+		
+		long count = userRepository.countBetterQuickMath(10.0);
+
+		assertEquals(1, count);
+	}
+
+	@Test
+	public void findFriendsTopTypingSpeedScores_success() {
+		User user = new User();
+		user.setUsername("typingMain");
+		user.setPassword("pw");
+		user.setCreationDate(java.time.LocalDate.now());
+		user.setStatus(UserStatus.ONLINE);
+		user.setToken("FT1");
+		user.setTypingHighScore(60);
+
+		User friendUser = new User();
+		friendUser.setUsername("typingFriend");
+		friendUser.setPassword("pw");
+		friendUser.setCreationDate(java.time.LocalDate.now());
+		friendUser.setStatus(UserStatus.ONLINE);
+		friendUser.setToken("FT2");
+		friendUser.setTypingHighScore(80);
+
+		entityManager.persist(user);
+		entityManager.persist(friendUser);
+		entityManager.flush();
+
+		Friend friend = new Friend();
+		friend.setUser(user);
+		friend.setFriend(friendUser);
+		entityManager.persist(friend);
+		entityManager.flush();
+
+		List<User> found = userRepository.findFriendsTopTypingSpeedScores(user.getId(), PageRequest.of(0, 10));
+
+		assertEquals(2, found.size());
+		
+		assertEquals(80, found.get(0).getTypingHighScore());
+	}
+
+	@Test
+	public void findFriendsTopTypingSpeedScores_excludesNonFriend() {
+		User user = new User();
+		user.setUsername("typingMain2");
+		user.setPassword("pw");
+		user.setCreationDate(java.time.LocalDate.now());
+		user.setStatus(UserStatus.ONLINE);
+		user.setToken("FT3");
+		user.setTypingHighScore(50);
+
+		// not a friend of user
+		User stranger = new User();
+		stranger.setUsername("stranger");
+		stranger.setPassword("pw");
+		stranger.setCreationDate(java.time.LocalDate.now());
+		stranger.setStatus(UserStatus.ONLINE);
+		stranger.setToken("FT4");
+		stranger.setTypingHighScore(99);
+
+		entityManager.persist(user);
+		entityManager.persist(stranger);
+		entityManager.flush();
+
+		List<User> found = userRepository.findFriendsTopTypingSpeedScores(user.getId(), PageRequest.of(0, 10));
+
+		assertEquals(1, found.size());
+		assertEquals("typingMain2", found.get(0).getUsername());
+	}
+
+	@Test
+	public void findFriendsTopTimeIntervalScores_success() {
+		User user = new User();
+		user.setUsername("intervalMain");
+		user.setPassword("pw");
+		user.setCreationDate(java.time.LocalDate.now());
+		user.setStatus(UserStatus.ONLINE);
+		user.setToken("FTI1");
+		user.setTimeIntervalHighScore(2.0);
+
+		User friendUser = new User();
+		friendUser.setUsername("intervalFriend");
+		friendUser.setPassword("pw");
+		friendUser.setCreationDate(java.time.LocalDate.now());
+		friendUser.setStatus(UserStatus.ONLINE);
+		friendUser.setToken("FTI2");
+		friendUser.setTimeIntervalHighScore(1.5);
+
+		entityManager.persist(user);
+		entityManager.persist(friendUser);
+		entityManager.flush();
+
+		Friend friend = new Friend();
+		friend.setUser(user);
+		friend.setFriend(friendUser);
+		entityManager.persist(friend);
+		entityManager.flush();
+
+		List<User> found = userRepository.findFriendsTopTimeIntervalScores(user.getId(), PageRequest.of(0, 10));
+
+		assertEquals(2, found.size());
+		
+		assertEquals(1.5, found.get(0).getTimeIntervalHighScore());
+	}
+
+	@Test
+	public void findFriendsTopAimTestScores_success() {
+		User user = new User();
+		user.setUsername("aimMain");
+		user.setPassword("pw");
+		user.setCreationDate(java.time.LocalDate.now());
+		user.setStatus(UserStatus.ONLINE);
+		user.setToken("FAT1");
+		user.setAimTestHighScore(70);
+
+		User friendUser = new User();
+		friendUser.setUsername("aimFriend");
+		friendUser.setPassword("pw");
+		friendUser.setCreationDate(java.time.LocalDate.now());
+		friendUser.setStatus(UserStatus.ONLINE);
+		friendUser.setToken("FAT2");
+		friendUser.setAimTestHighScore(90);
+
+		entityManager.persist(user);
+		entityManager.persist(friendUser);
+		entityManager.flush();
+
+		Friend friend = new Friend();
+		friend.setUser(user);
+		friend.setFriend(friendUser);
+		entityManager.persist(friend);
+		entityManager.flush();
+
+		List<User> found = userRepository.findFriendsTopAimTestScores(user.getId(), PageRequest.of(0, 10));
+
+		assertEquals(2, found.size());
+		
+		assertEquals(90, found.get(0).getAimTestHighScore());
+	}
+
+	@Test
+	public void findFriendsTopClickSpeedScores_success() {
+		User user = new User();
+		user.setUsername("clickMain");
+		user.setPassword("pw");
+		user.setCreationDate(java.time.LocalDate.now());
+		user.setStatus(UserStatus.ONLINE);
+		user.setToken("FCS1");
+		user.setClickSpeedHighScore(6.0);
+
+		User friendUser = new User();
+		friendUser.setUsername("clickFriend");
+		friendUser.setPassword("pw");
+		friendUser.setCreationDate(java.time.LocalDate.now());
+		friendUser.setStatus(UserStatus.ONLINE);
+		friendUser.setToken("FCS2");
+		friendUser.setClickSpeedHighScore(11.0);
+
+		entityManager.persist(user);
+		entityManager.persist(friendUser);
+		entityManager.flush();
+
+		Friend friend = new Friend();
+		friend.setUser(user);
+		friend.setFriend(friendUser);
+		entityManager.persist(friend);
+		entityManager.flush();
+
+		List<User> found = userRepository.findFriendsTopclickSpeedScores(user.getId(), PageRequest.of(0, 10));
+
+		assertEquals(2, found.size());
+		
+		assertEquals(11.0, found.get(0).getClickSpeedHighScore());
+	}
+
+	@Test
+	public void findFriendsTopQuickMathScores_success() {
+		User user = new User();
+		user.setUsername("mathMain");
+		user.setPassword("pw");
+		user.setCreationDate(java.time.LocalDate.now());
+		user.setStatus(UserStatus.ONLINE);
+		user.setToken("FQM1");
+		user.setQuickMathHighScore(12.0);
+
+		User friendUser = new User();
+		friendUser.setUsername("mathFriend");
+		friendUser.setPassword("pw");
+		friendUser.setCreationDate(java.time.LocalDate.now());
+		friendUser.setStatus(UserStatus.ONLINE);
+		friendUser.setToken("FQM2");
+		friendUser.setQuickMathHighScore(9.0);
+
+		entityManager.persist(user);
+		entityManager.persist(friendUser);
+		entityManager.flush();
+
+		Friend friend = new Friend();
+		friend.setUser(user);
+		friend.setFriend(friendUser);
+		entityManager.persist(friend);
+		entityManager.flush();
+
+		List<User> found = userRepository.findFriendsTopQuickMathScores(user.getId(), PageRequest.of(0, 10));
+
+		assertEquals(2, found.size());
+		
+		assertEquals(12.0, found.get(0).getQuickMathHighScore());
+	}
+
+	@Test
+	public void findFriendsTopReactionTimeScores_noScores_returnsEmpty() {
+		// neither user has a reaction score so result should be empty
+		User user = new User();
+		user.setUsername("noScoreMain");
+		user.setPassword("pw");
+		user.setCreationDate(java.time.LocalDate.now());
+		user.setStatus(UserStatus.ONLINE);
+		user.setToken("NS1");
+
+		User friendUser = new User();
+		friendUser.setUsername("noScoreFriend");
+		friendUser.setPassword("pw");
+		friendUser.setCreationDate(java.time.LocalDate.now());
+		friendUser.setStatus(UserStatus.ONLINE);
+		friendUser.setToken("NS2");
+
+		entityManager.persist(user);
+		entityManager.persist(friendUser);
+		entityManager.flush();
+
+		Friend friend = new Friend();
+		friend.setUser(user);
+		friend.setFriend(friendUser);
+		entityManager.persist(friend);
+		entityManager.flush();
+
+		List<User> found = userRepository.findFriendsTopReactionTimeScores(user.getId(), PageRequest.of(0, 10));
+
+		assertTrue(found.isEmpty());
+	}
 }
