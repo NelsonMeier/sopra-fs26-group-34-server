@@ -59,4 +59,41 @@ public class GameControllerTest {
                 .andExpect(status().isInternalServerError())
                 .andExpect(content().string("Error fetching quote"));
     }
+
+    // null response from external API returns 500
+    @Test
+    public void getRandomQuote_nullResponse_returns500() throws Exception {
+
+        given(restTemplate.getForObject(
+                org.mockito.Mockito.anyString(),
+                org.mockito.Mockito.eq(Map.class)
+        )).willReturn(null);
+
+        mockMvc.perform(get("/api/games/quote")
+                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isInternalServerError())
+                .andExpect(content().string("Error fetching quote"));
+    }
+
+    // special characters should be replaced correctly
+    @Test
+    public void getRandomQuote_specialCharacters_replacedCorrectly() throws Exception {
+
+        Map<String, Object> mockResponse = Map.of(
+            "content", "“Smart” people — don’t use ‘bad’ punctuation – ever.",
+            "author", "Test Author"
+        );
+
+        given(restTemplate.getForObject(
+                org.mockito.Mockito.anyString(),
+                org.mockito.Mockito.eq(Map.class)
+        )).willReturn(mockResponse);
+
+        mockMvc.perform(get("/api/games/quote")
+                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.content",
+                        is("\"Smart\" people - don't use 'bad' punctuation - ever.")))
+                .andExpect(jsonPath("$.author", is("Test Author")));
+    }
 }

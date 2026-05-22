@@ -325,7 +325,7 @@ public class RoomControllerTest {
 
     @Test
     public void submitScore_validRoom_sendsScoreSubmitted() {
-        // create room
+
         Map<String, String> createPayload = new HashMap<>();
         createPayload.put("roomId", "room1");
         createPayload.put("adminId", "1");
@@ -347,6 +347,119 @@ public class RoomControllerTest {
             Mockito.eq("/topic/room/room1"),
             Mockito.<Object>any()
         );
+    }
+
+    @Test
+    public void submitScore_allPlayersDone_sendsRoundComplete() {
+
+        Map<String, String> createPayload = new HashMap<>();
+        createPayload.put("roomId", "room1");
+        createPayload.put("adminId", "1");
+        createPayload.put("adminUsername", "admin");
+
+        roomController.createRoom(createPayload);
+
+        Map<String, String> invitePayload = new HashMap<>();
+        invitePayload.put("roomId", "room1");
+        invitePayload.put("username", "player1");
+        invitePayload.put("inviterName", "admin");
+
+        roomController.inviteRoom(invitePayload);
+
+        Map<String, String> joinPayload = new HashMap<>();
+        joinPayload.put("roomId", "room1");
+        joinPayload.put("username", "player1");
+
+        roomController.joinRoom(joinPayload);
+
+        Map<String, String> selectPayload = new HashMap<>();
+        selectPayload.put("roomId", "room1");
+        selectPayload.put("game", "reactionSpeed");
+        selectPayload.put("rounds", "1");
+
+        roomController.selectGame(selectPayload);
+
+        Mockito.reset(messagingTemplate);
+
+        Map<String, Object> score1 = new HashMap<>();
+        score1.put("roomId", "room1");
+        score1.put("username", "admin");
+        score1.put("round", "1");
+        score1.put("score", 10);
+
+        roomController.submitScore(score1);
+
+        Map<String, Object> score2 = new HashMap<>();
+        score2.put("roomId", "room1");
+        score2.put("username", "player1");
+        score2.put("round", "1");
+        score2.put("score", 15);
+
+        roomController.submitScore(score2);
+
+        verify(messagingTemplate, Mockito.atLeastOnce()).convertAndSend(
+                Mockito.eq("/topic/room/room1"),
+                Mockito.<Object>any()
+        );
+    }
+
+    // nextGame function from RoomController
+    @Test
+    public void nextGame_validRoom_sendsMessage() {
+
+        Map<String, String> createPayload = new HashMap<>();
+        createPayload.put("roomId", "room1");
+        createPayload.put("adminId", "1");
+        createPayload.put("adminUsername", "admin");
+
+        roomController.createRoom(createPayload);
+
+        Map<String, String> selectPayload1 = new HashMap<>();
+        selectPayload1.put("roomId", "room1");
+        selectPayload1.put("game", "reactionSpeed");
+        selectPayload1.put("rounds", "1");
+
+        roomController.selectGame(selectPayload1);
+
+        Map<String, String> selectPayload2 = new HashMap<>();
+        selectPayload2.put("roomId", "room1");
+        selectPayload2.put("game", "timeInterval");
+        selectPayload2.put("rounds", "1");
+
+        roomController.selectGame(selectPayload2);
+
+        Mockito.reset(messagingTemplate);
+
+        Map<String, String> nextGamePayload = new HashMap<>();
+        nextGamePayload.put("roomId", "room1");
+
+        roomController.nextGame(nextGamePayload);
+
+        verify(messagingTemplate).convertAndSend(
+                Mockito.eq("/topic/room/room1"),
+                Mockito.<Object>any()
+        );
+    }
+
+    @Test
+    public void nextGame_noNextGame_noMessage() {
+
+        Map<String, String> createPayload = new HashMap<>();
+        createPayload.put("roomId", "room1");
+        createPayload.put("adminId", "1");
+        createPayload.put("adminUsername", "admin");
+
+        roomController.createRoom(createPayload);
+
+        Mockito.reset(messagingTemplate);
+
+        Map<String, String> payload = new HashMap<>();
+        payload.put("roomId", "room1");
+
+        roomController.nextGame(payload);
+
+        Mockito.verify(messagingTemplate, Mockito.never())
+                .convertAndSend(Mockito.anyString(), Mockito.<Object>any());
     }
 
     // nextRound function from RoomController
@@ -436,5 +549,112 @@ public class RoomControllerTest {
 
         assertEquals("1", sentMessage.get("round"));
     }
+
+    // startRound startAt timestamp approximately correct
+    @Test
+    public void startRound_startAtIsApproximately3SecondsAhead() {
+
+        Map<String, String> payload = new HashMap<>();
+        payload.put("roomId", "room1");
+
+        long now = System.currentTimeMillis();
+
+        ArgumentCaptor<Object> captor = ArgumentCaptor.forClass(Object.class);
+
+        roomController.startRound(payload);
+
+        verify(messagingTemplate).convertAndSend(
+                Mockito.eq("/topic/room/room1"),
+                captor.capture()
+        );
+
+        @SuppressWarnings("unchecked")
+        Map<String, Object> message = (Map<String, Object>) captor.getValue();
+
+        long startAt = (long) message.get("startAt");
+
+        assertTrue(startAt >= now + 3000);
+        assertTrue(startAt <= now + 3500);
+    }
+
+    // playerLeft: admin leaves -> session ended
+    @Test
+    public void playerLeft_adminLeaves_sessionEndedAndRoomRemoved() {
+
+        Map<String, String> createPayload = new HashMap<>();
+        createPayload.put("roomId", "room1");
+        createPayload.put("adminId", "1");
+        createPayload.put("adminUsername", "admin");
+
+        roomController.createRoom(createPayload);
+
+        Mockito.reset(messagingTemplate);
+
+        Map<String, String> leavePayload = new HashMap<>();
+        leavePayload.put("roomId", "room1");
+        leavePayload.put("username", "admin");
+
+        roomController.playerLeft(leavePayload);
+
+        verify(messagingTemplate).convertAndSend(
+                Mockito.eq("/topic/room/room1"),
+                Mockito.eq((Object) Map.of(
+                        "type", "SESSION_ENDED",
+                        "reason", "Admin left the game"
+                ))
+        );
+
+        // room should now be gone
+        Mockito.reset(messagingTemplate);
+
+        Map<String, String> joinPayload = new HashMap<>();
+        joinPayload.put("roomId", "room1");
+        joinPayload.put("username", "player1");
+
+        roomController.joinRoom(joinPayload);
+
+        Mockito.verify(messagingTemplate, Mockito.never())
+                .convertAndSend(Mockito.anyString(), Mockito.<Object>any());
+    }
+
+    // playerLeft before game started updates room state
+    @Test
+    public void playerLeft_beforeGameStarted_updatesRoomState() {
+
+        Map<String, String> createPayload = new HashMap<>();
+        createPayload.put("roomId", "room1");
+        createPayload.put("adminId", "1");
+        createPayload.put("adminUsername", "admin");
+
+        roomController.createRoom(createPayload);
+
+        Map<String, String> invitePayload = new HashMap<>();
+        invitePayload.put("roomId", "room1");
+        invitePayload.put("username", "player1");
+        invitePayload.put("inviterName", "admin");
+
+        roomController.inviteRoom(invitePayload);
+
+        Map<String, String> joinPayload = new HashMap<>();
+        joinPayload.put("roomId", "room1");
+        joinPayload.put("username", "player1");
+
+        roomController.joinRoom(joinPayload);
+
+        Mockito.reset(messagingTemplate);
+
+        Map<String, String> leavePayload = new HashMap<>();
+        leavePayload.put("roomId", "room1");
+        leavePayload.put("username", "player1");
+
+        roomController.playerLeft(leavePayload);
+
+        verify(messagingTemplate).convertAndSend(
+                Mockito.eq("/topic/room/room1"),
+                Mockito.<Object>any()
+        );
+    }
+
+    
 
 }
