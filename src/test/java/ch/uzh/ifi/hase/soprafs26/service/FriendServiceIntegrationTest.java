@@ -153,6 +153,18 @@ public class FriendServiceIntegrationTest {
     }
 
     @Test
+    public void sendFriendRequest_declinedRequest_resendSuccess() {
+        FriendRequest request = friendService.sendFriendRequest(sender.getId(), receiver.getId());
+        friendService.declineFriendRequest(request.getId());
+
+        FriendRequest resent = friendService.sendFriendRequest(sender.getId(), receiver.getId());
+
+        assertEquals(request.getId(), resent.getId());
+        assertEquals(FriendRequestStatus.PENDING, resent.getStatus());
+        assertNotNull(resent.getCreatedAt());
+    }
+
+    @Test
     public void declineFriendRequest_alreadyAccepted_throwsBadRequest() {
         FriendRequest request = friendService.sendFriendRequest(sender.getId(), receiver.getId());
         friendService.acceptFriendRequest(request.getId());
@@ -183,6 +195,8 @@ public class FriendServiceIntegrationTest {
 
         assertTrue(friendRepository.findByUserId(sender.getId()).isEmpty());
         assertTrue(friendRepository.findByUserId(receiver.getId()).isEmpty());
+        assertTrue(friendRequestRepository.findBySenderIdOrReceiverId(sender.getId(), sender.getId()).isEmpty());
+        assertTrue(friendRequestRepository.findBySenderIdOrReceiverId(receiver.getId(), receiver.getId()).isEmpty());
     }
 
     @Test
@@ -216,6 +230,20 @@ public class FriendServiceIntegrationTest {
         friendService.declineFriendRequest(request.getId());
         List<FriendRequest> afterDecline = friendService.getFriendRequests(receiver.getId());
         assertTrue(afterDecline.isEmpty());
+    }
+
+    // tests retrieval of sent friend requests and sender/receiver repository lookup
+    @Test
+    public void getSentFriendRequests_returnsSentRequests() {
+        friendService.sendFriendRequest(sender.getId(), receiver.getId());
+
+        List<FriendRequest> sent = friendService.getSentFriendRequests(sender.getId());
+        List<FriendRequest> involvingSender = friendRequestRepository.findBySenderIdOrReceiverId(sender.getId(), sender.getId());
+
+        assertEquals(1, sent.size());
+        assertEquals(receiver.getId(), sent.get(0).getReceiver().getId());
+        assertEquals(1, involvingSender.size());
+        assertEquals(sender.getId(), involvingSender.get(0).getSender().getId());
     }
 
     @Test
